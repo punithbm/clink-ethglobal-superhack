@@ -1,18 +1,34 @@
 import React, { useMemo, useState } from 'react';
 import HomePage from '../ui_components/home/HomePage';
+import ConnectWallet from '../ui_components/connect_wallet/';
 import './globals.css';
-import { ADAPTER_EVENTS } from '@web3auth/base';
 import OpenLogin from '@toruslabs/openlogin';
-import { baseGoerli, projectId } from '../constants/index';
+import { baseGoerli, projectId } from '../constants';
 import { Wallet } from '../utils/wallet';
 import { initWasm } from '@trustwallet/wallet-core';
-import HomePageNew from '../ui_components/home/HomePageNew';
+import { LoadChestComponent } from '../ui_components/loadchest/LoadChestComponent';
+import Header from '../ui_components/header';
+import BottomSheet from '../ui_components/bottom-sheet';
+import LoadingTokenPage from '../ui_components/loadingTokenPage';
+
+export type THandleStep = {
+  handleSteps: (step: number) => void;
+};
+
+export enum ESteps {
+  ONE = 1,
+  TWO = 2,
+  THREE = 3,
+}
 
 export default function Home() {
-  const [openlogin, setSdk] = useState<any>('');
+  const [loader, setLoader] = useState(true);
+  const [openLogin, setSdk] = useState<any>('');
+  const [walletAddress, setWalletAddress] = useState<string>('');
+  const [step, setStep] = useState<number>(ESteps.ONE);
 
   useMemo(async () => {
-    async function initializeOpenlogin() {
+    async function initializeOpenLogin() {
       const sdkInstance = new OpenLogin({
         clientId: projectId,
         network: baseGoerli.networks.testnet.displayName,
@@ -20,20 +36,26 @@ export default function Home() {
       });
       await sdkInstance.init();
       if (sdkInstance.privKey) {
-        console.log('priv key ', sdkInstance.privKey);
+        if (localStorage.getItem('loginAttempted') === 'true') {
+          handleSteps(ESteps.THREE);
+          localStorage.removeItem('loginAttempted');
+        }
         const prvKey = sdkInstance.privKey;
         getAddress(prvKey);
+      } else {
+        setLoader(false);
       }
       setSdk(sdkInstance);
     }
-    initializeOpenlogin();
+    initializeOpenLogin();
   }, []);
 
   const signIn = async () => {
+    localStorage.setItem('loginAttempted', 'true');
     try {
-      const privKey = await openlogin.login({
-        loginProvider: 'jwt',
-        // redirectUrl: `${window.origin}`,
+      await openLogin.login({
+        loginProvider: 'google',
+        redirectUrl: `${window.origin}`,
         mfaLevel: 'none',
       });
     } catch (error) {
@@ -45,20 +67,48 @@ export default function Home() {
     const walletCore = await initWasm();
     const wallet = new Wallet(walletCore);
     const address = await wallet.importWithPrvKey(prvKey);
-    console.log('priv key address captured ', address);
+    setWalletAddress(address);
+    setLoader(false);
   };
 
-  const signOut = async () => {};
+  const signOut = async () => {
+    await openLogin.logout();
+  };
+
+  const handleSteps = (step: number) => {
+    setStep(step);
+  };
+
+  const getUIComponent = (step: number) => {
+    switch (step) {
+      case ESteps.ONE:
+        return <HomePage handleSetupChest={handleSetupChest} />;
+      case ESteps.TWO:
+        return <ConnectWallet signIn={signIn} handleSteps={handleSteps} />;
+      case ESteps.THREE:
+        return <LoadChestComponent openLogin={openLogin} handleSteps={handleSteps} />;
+      default:
+        return <HomePage handleSetupChest={handleSetupChest} />;
+    }
+  };
+
+  const handleSetupChest = () => {
+    if (walletAddress) {
+      handleSteps(ESteps.THREE);
+    } else {
+      handleSteps(ESteps.TWO);
+    }
+  };
+
+  const connectWallet = () => {};
 
   return (
-    <div className="flex container min-h-screen flex-col items-center justify-between p-24">
-      <HomePageNew />
-      <button className="btn" type="button" onClick={signIn}>
-        SignIn
-      </button>
-      <button className="btn" type="button" onClick={signOut}>
-        SignOut
-      </button>
-    </div>
+    <>
+      <Header walletAddress={walletAddress} signIn={signIn} />
+      <div className="flex min-h-screen flex-row items-center justify-between p-4 relative">
+        {getUIComponent(step)}
+        {/* <BottomSheet isOpen={true} onClose={() => {}} /> */}
+      </div>
+    </>
   );
 }

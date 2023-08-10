@@ -10,7 +10,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        inter: ["inter"],
+        inter: ["Inter"],
       },
       fontSize: {
         xs: ".75rem",
@@ -22,6 +22,7 @@ module.exports = {
         xxl: "2.5rem",
         xxxl: "3.75rem",
         medium: "1.5rem",
+        hero: "4rem",
         "4xl": "4.5rem",
         "5xl": "6rem",
       },
@@ -44,6 +45,8 @@ module.exports = {
         10: "1.5rem",
         11: "6.25rem",
         12: "4.25rem",
+        13: "5rem",
+        14: "1.5rem"
       },
 
       letterSpacing: {

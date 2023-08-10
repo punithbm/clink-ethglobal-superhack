@@ -2,10 +2,11 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 
 import { TApiResponse } from '../types';
 import { toastFlashMessage } from '.';
+import { baseGoerli } from '../constants';
 
 const axiosInstance: AxiosInstance = axios.create();
 
-axiosInstance.defaults.baseURL = ``;
+axiosInstance.defaults.baseURL = `${baseGoerli.networks.testnet.url}`;
 axiosInstance.interceptors.request.use(
   function (config: AxiosRequestConfig) {
     return config;

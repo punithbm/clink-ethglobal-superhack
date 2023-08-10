@@ -1,3 +1,4 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Raleway:wght@400;600;700;800&display=swap");
 @import "./typography.css";
 @tailwind base;
 @tailwind components;
@@ -17,7 +18,53 @@
     }
 }
 
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+main {
+    min-height: 100%;
+}
+
 body {
     color: rgb(var(--foreground-rgb));
-    background: linear-gradient(to bottom, transparent, rgb(var(--background-end-rgb))) rgb(var(--background-start-rgb));
+    background: radial-gradient(61.66% 83.83% at 72.76% 81.19%, rgba(51, 202, 175, 0.44) 0%, rgba(51, 202, 175, 0.00) 100%), #150937;
+}
+
+body>div {
+    min-height: 100%;
+}
+
+html,
+body {
+    min-height: 100%;
+}
+
+.btnBg {
+    background: linear-gradient(93.22deg, #44e6d2 8.1%, #26d797 93.89%);
+}
+
+.bgBlur {
+    border-radius: 445px;
+    opacity: 0.20000000298023224;
+    background: #28d799;
+    filter: blur(62px);
+}
+
+.shareLinkBg {
+    background: linear-gradient(148deg, #051923 0%, #0b254d 100%);
+}
+
+.inputBg {
+    backdrop-filter: blur(30px);
+}
+
+.header-menu-list .header-submenu {
+    display: none;
+}
+
+.header-menu-list:hover .header-submenu {
+    display: flex;
 }
