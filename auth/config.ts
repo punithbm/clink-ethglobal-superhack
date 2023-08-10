@@ -2,7 +2,7 @@ import { Web3AuthModalPack, Web3AuthConfig } from '@safe-global/auth-kit';
 import { Web3AuthOptions } from '@web3auth/modal';
 import { OpenloginAdapter } from '@web3auth/openlogin-adapter';
 import { ADAPTER_EVENTS, CHAIN_NAMESPACES, SafeEventEmitterProvider, UserInfo, WALLET_ADAPTERS } from '@web3auth/base';
-import { baseGoerli, loginProvider, projectId } from '../constants';
+import { baseGoerli, loginProvider, projectId } from '../constants/index';
 
 // https://web3auth.io/docs/sdk/pnp/web/modal/initialize#arguments
 export const options: Web3AuthOptions = {

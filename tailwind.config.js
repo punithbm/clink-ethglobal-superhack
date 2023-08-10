@@ -10,9 +10,7 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-clashDisplay)"],
-        raleway: ["Raleway"],
-        urbanist: ["Urbanist"],
+        inter: ["inter"],
       },
       fontSize: {
         xs: ".75rem",

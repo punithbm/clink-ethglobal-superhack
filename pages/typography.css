@@ -1,21 +1,21 @@
 .heading1 {
-    @apply font-sans font-semibold text-xxl leading-3 md: text-4xl md:leading-5 text-black;
+    @apply font-sans font-semibold text-xxl leading-3 md:text-4xl md:leading-5 text-black;
 }
 
 .heading2 {
-    @apply font-sans font-semibold text-xxl leading-3 md: text-5xl md:leading-6 text-black;
+    @apply font-sans font-semibold text-xxl leading-3 md:text-5xl md:leading-6 text-black;
 }
 
 .heading3 {
-    @apply font-sans font-semibold text-xl leading-5 md: text-xxxl md:leading-5 text-black;
+    @apply font-sans font-semibold text-xl leading-5 md:text-xxxl md:leading-5 text-black;
 }
 
 .heading4 {
-    @apply font-sans font-semibold text-xl leading-4 md: text-xxl md:leading-4 text-black;
+    @apply font-sans font-semibold text-xl leading-4 md:text-xxl md:leading-4 text-black;
 }
 
 .heading4_bold {
-    @apply font-sans font-bold text-xl leading-4 md: text-xxl md:leading-8 text-black;
+    @apply font-sans font-bold text-xl leading-4 md:text-xxl md:leading-8 text-black;
 }
 
 .heading4_regular {
@@ -23,33 +23,33 @@
 }
 
 .subtitle {
-    @apply font-sans font-medium text-medium leading-2 md: text-medium md:leading-2 text-black;
+    @apply font-sans font-medium text-medium leading-2 md:text-medium md:leading-2 text-black;
 }
 
 .subtitle_medium {
-    @apply font-sans font-medium text-lg leading-9 md: text-lg md:leading-9 text-black;
+    @apply font-sans font-medium text-lg leading-9 md:text-lg md:leading-9 text-black;
 }
 
 .subtitle_semibold {
-    @apply font-sans font-semibold text-lg leading-10 md: text-lg md:leading-10 text-black;
+    @apply font-sans font-semibold text-lg leading-10 md:text-lg md:leading-10 text-black;
 }
 
 .support_text_bold {
-    @apply font-sans font-semibold text-base leading-1 md: text-base md:leading-1 text-black;
+    @apply font-sans font-semibold text-base leading-1 md:text-base md:leading-1 text-black;
 }
 
 .paragraph {
-    @apply font-sans font-semibold text-sm leading-[21px] md: text-sm md:leading-[21px] text-black;
+    @apply font-sans font-semibold text-sm leading-[21px] md:text-sm md:leading-[21px] text-black;
 }
 
 .paragraph_regular {
-    @apply font-sans font-normal text-base leading-10 md: text-lg md:leading-10 text-black;
+    @apply font-sans font-normal text-base leading-10 md:text-lg md:leading-10 text-black;
 }
 
 .decode_paragraph_regular {
-    @apply font-urbanist font-normal text-lg leading-9 md: text-[1.8rem] md:leading-[42px] text-black;
+    @apply font-normal text-lg leading-9 md:text-[1.8rem] md:leading-[42px] text-black;
 }
 
 .decode_heading4_regular {
-    @apply font-urbanist font-normal text-xl leading-4 text-black;
+    @apply font-normal text-xl leading-4 text-black;
 }

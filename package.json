@@ -9,13 +9,17 @@
         "lint": "next lint"
     },
     "dependencies": {
+        "@headlessui/react": "^1.7.16",
         "@safe-global/auth-kit": "^1.2.0",
         "@toruslabs/openlogin": "^4.7.2",
         "@toruslabs/openlogin-ed25519": "^4.2.0",
+        "@trustwallet/wallet-core": "^3.2.7",
         "@types/node": "20.4.5",
         "@types/react": "18.2.17",
         "@types/react-dom": "18.2.7",
         "autoprefixer": "10.4.14",
+        "axios": "^1.4.0",
+        "copy-webpack-plugin": "^11.0.0",
         "eslint": "8.45.0",
         "eslint-config-next": "13.3.1",
         "eslint-config-prettier": "^8.3.0",
