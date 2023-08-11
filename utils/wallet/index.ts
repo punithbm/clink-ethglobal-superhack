@@ -91,8 +91,9 @@ export class Wallet {
     createPayLink = () => {
         const account = this.HDWallet.create(128, "");
         const entropy = account.entropy();
+        const address =  account.getAddressForCoin(this.CoinType.ethereum);
         const hash = bs58.encode(entropy);
-        return "/" + hash;
+        return { link: "/i#" + hash, address: address };
     };
 
     getAccountFromPayLink = (hash: string) => {
@@ -101,7 +102,8 @@ export class Wallet {
             const bs58Decoded = bs58.decode(urlHash);
             const account = this.HDWallet.createWithEntropy(bs58Decoded, "");
             return account.getAddressForCoin(this.CoinType.ethereum);
-        } catch {
+        } catch (e) {
+            console.log(e, "error");
             return "";
         }
     };
@@ -112,7 +114,6 @@ export class Wallet {
             const bs58Decoded = bs58.decode(urlHash);
             const account = this.HDWallet.createWithEntropy(bs58Decoded, "");
             const privKey = account.getKey(this.CoinType.ethereum, "m/44'/60'/0'/0/0");
-            console.log(privKey, "private key");
             const secret = this.bufferToHex(privKey.data());
             return secret;
         } catch {

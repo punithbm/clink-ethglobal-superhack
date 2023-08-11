@@ -1,16 +1,22 @@
-import { createContext, Dispatch, ReactNode, useReducer } from 'react';
-import { saveStore } from '../store/GlobalStore';
+import { createContext, Dispatch, ReactNode, useReducer } from "react";
+import { saveStore } from "../store/GlobalStore";
 
 export enum ACTIONS {
-  CLEAR_TOAST = 'CLEAR_TOAST',
-  SHOW_TOAST = 'SHOW_TOAST',
-  HIDE_TOAST = 'HIDE_TOAST',
-  SET_ADDRESS = 'SET_ADDRESS',
+  CLEAR_TOAST = "CLEAR_TOAST",
+  SHOW_TOAST = "SHOW_TOAST",
+  HIDE_TOAST = "HIDE_TOAST",
+  SET_ADDRESS = "SET_ADDRESS",
+  GOOGLE_USER_INFO = "GOOGLE_USER_INFO",
+  LOGGED_IN_VIA = "LOGGED_IN_VIA",
+  LOGOUT = "LOGOUT",
 }
 
 export type TInitialStateType = {
   toastLists: Array<TToastType> | [];
   address: string;
+  googleUserInfo: any;
+  loggedInVia: string;
+  isConnected: boolean;
 };
 
 export type TActionType = {
@@ -34,7 +40,10 @@ export type TGlobalContextType = {
 
 const initialState: TInitialStateType = {
   toastLists: [],
-  address: '',
+  address: "",
+  googleUserInfo: {},
+  loggedInVia: "",
+  isConnected: false,
 };
 
 export const GlobalContext = createContext<TGlobalContextType>({
@@ -46,8 +55,8 @@ function reducer(state: TInitialStateType, action: TActionType) {
   switch (action.type) {
     case ACTIONS.SHOW_TOAST: {
       const payload = action.payload as TToastType;
-      if (payload.toastType === 'error') {
-        if (state.toastLists.filter((toast: TToastType) => toast.toastType === 'error').length < 1) {
+      if (payload.toastType === "error") {
+        if (state.toastLists.filter((toast: TToastType) => toast.toastType === "error").length < 1) {
           return {
             ...state,
             toastLists: [
@@ -88,6 +97,29 @@ function reducer(state: TInitialStateType, action: TActionType) {
       return {
         ...state,
         address: action.payload as string,
+        isConnected: true,
+      };
+    }
+    case ACTIONS.GOOGLE_USER_INFO: {
+      const { googleUserInfo, isConnected } = action.payload as any;
+      return {
+        ...state,
+        googleUserInfo: googleUserInfo,
+        isConnected: isConnected,
+      };
+    }
+    case ACTIONS.LOGGED_IN_VIA: {
+      return {
+        ...state,
+        loggedInVia: action.payload as string,
+      };
+    }
+    case ACTIONS.LOGOUT: {
+      return {
+        ...state,
+        googleUserInfo: {},
+        isConnected: false,
+        address: "",
       };
     }
     default:

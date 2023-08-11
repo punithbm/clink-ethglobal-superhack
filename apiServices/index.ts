@@ -7,6 +7,7 @@ enum ETHEREUM_REQUESTS {
   ethGasPrice = 'eth_gasPrice',
   ethSendRawTransaction = 'eth_sendRawTransaction',
   ethGetTransactionCount = 'eth_getTransactionCount',
+  ethTransactionStatus = 'eth_getTransactionReceipt',
 }
 
 export const getBalance = async (address: string) => {
@@ -60,10 +61,20 @@ export const getSendRawTransaction = async (tx: string) => {
   });
 };
 
+export const getSendTransactionStatus = async (hash: string) => {
+  return new Promise(function (resolve, reject) {
+    globalApiService(ETHEREUM_REQUESTS.ethTransactionStatus, [hash])
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((e) => reject(e));
+  });
+};
+
 export const getUsdPrice = (): Promise<any[]> => {
   const config = {
     method: 'get',
-    url: 'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd',
+    url: 'https://pro-api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd&x_cg_pro_api_key=CG-3rZprwbEEjFtakNBS8mghn8H',
     headers: { 'Content-Type': 'application/json' },
   };
   return new Promise((resolve) => {

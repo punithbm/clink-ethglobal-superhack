@@ -1,17 +1,49 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { FC, Fragment, ReactNode } from "react";
+import { FC, Fragment, ReactNode, useContext, useState } from "react";
 import { icons } from "../../utils/images";
 import Image from "next/image";
+import { ACTIONS, GlobalContext } from "../../context/GlobalContext";
+import { trimAddress } from "../../utils";
+import Link from "next/link";
+import { ESteps, LOGGED_IN } from "../../pages";
+import { useWagmi } from "../../utils/wagmi/WagmiContext";
 
 type TProps = {
     isOpen: boolean;
     onClose: () => void;
+    walletAddress?: string;
+    handleSteps: (step: number) => void;
+    signOut: () => Promise<void>;
+    signIn: () => Promise<void>;
 };
 const BottomSheet: FC<TProps> = (props) => {
-    const { isOpen = true, onClose } = props;
+    const { isOpen, onClose, walletAddress, signOut, signIn, handleSteps } = props;
+    const [copyText, setCopyText] = useState("Copy Address");
+    const { disconnect } = useWagmi();
+    const {
+        dispatch,
+        state: { googleUserInfo, address, isConnected, loggedInVia },
+    } = useContext(GlobalContext);
+    const copyToClipBoard = (e: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigator.clipboard.writeText(address);
+        setCopyText("Address copied");
+        setTimeout(() => {
+            setCopyText("Copy Address");
+        }, 4000);
+    };
+    const handleDisConnect = async () => {
+        await disconnect();
+        handleSteps(ESteps.ONE);
+        dispatch({
+            type: ACTIONS.LOGOUT,
+            payload: "",
+        });
+    };
     return (
         <Transition.Root show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-20" onClose={onClose}>
+            <Dialog as="div" className="relative z-20 block lg:hidden" onClose={onClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-500"
@@ -41,10 +73,53 @@ const BottomSheet: FC<TProps> = (props) => {
                                             isFullscreen === "true" ? "" : "grow"
                                         } */}
                                 <Dialog.Panel
-                                    className={`pointer-events-auto w-full bg-[#f5f5f5] rounded-t-2xl dark:bg-neutralDark-50`}
+                                    className={`pointer-events-auto w-full max-w-[600px]  bg-[#f5f5f5] rounded-t-2xl dark:bg-neutralDark-50`}
                                 >
                                     <div className="w-full">
-                                        <div className="flex justify-between items-center px-4 py-3">
+                                        {address ? (
+                                            <>
+                                                <div className="flex justify-between items-center px-4 py-3">
+                                                    <div>
+                                                        <p className="text-[12px] font-medium text-[#555555]">
+                                                            ACCOUNT OVERVIEW
+                                                        </p>
+                                                        <p className="text-black text-left">
+                                                            {address
+                                                                ? trimAddress(address)
+                                                                : ""}
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div
+                                                    className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6 cursor-pointer"
+                                                    onClick={copyToClipBoard}
+                                                >
+                                                    <p className="text-black">
+                                                        {copyText}
+                                                    </p>
+                                                    <Image
+                                                        src={icons.copyBlack}
+                                                        alt="copy icon"
+                                                    />
+                                                </div>
+                                                {isConnected &&
+                                                    loggedInVia ===
+                                                        LOGGED_IN.EXTERNAL_WALLET && (
+                                                        <div
+                                                            className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6"
+                                                            onClick={() => {
+                                                                handleDisConnect();
+                                                            }}
+                                                        >
+                                                            <p className="text-[#E11900]">
+                                                                Disconnect Wallet
+                                                            </p>
+                                                        </div>
+                                                    )}
+                                            </>
+                                        ) : null}
+
+                                        {/* <div className="flex justify-between items-center px-4 py-3">
                                             <div>
                                                 <p className="text-[12px] font-medium text-[#555555]">
                                                     ACCOUNT OVERVIEW
@@ -70,47 +145,67 @@ const BottomSheet: FC<TProps> = (props) => {
                                             <p className="text-[#E11900]">
                                                 Disconnect Wallet
                                             </p>
-                                        </div>
+                                        </div> */}
                                         <div className="bg-white w-full px-4">
-                                            <div className="flex justify-between items-center py-6 border-b-2">
-                                                <div className="flex gap-2 items-center">
+                                            {!isConnected ? (
+                                                <div
+                                                    className="flex justify-between items-center py-6 border-b-2 cursor-pointer"
+                                                    onClick={signIn}
+                                                >
+                                                    <div className="flex gap-2 items-center">
+                                                        <Image
+                                                            src={icons.googleIcon}
+                                                            alt="login with google"
+                                                        />
+                                                        <p className="text-black">
+                                                            Login with Google
+                                                        </p>
+                                                    </div>
                                                     <Image
-                                                        src={icons.googleIcon}
+                                                        src={icons.chevronRight}
                                                         alt="login with google"
                                                     />
-                                                    <p>Login with Google</p>
                                                 </div>
-                                                <Image
-                                                    src={icons.chevronRight}
-                                                    alt="login with google"
-                                                />
-                                            </div>
-                                            <div className="flex justify-between items-center py-6 border-b-2">
-                                                <div className="flex gap-2 items-center">
+                                            ) : null}
+                                            <Link
+                                                href="mailto:contact@blocktheory.com"
+                                                target="_blank"
+                                            >
+                                                <div className="flex justify-between items-center py-6 border-b-2">
+                                                    <div className="flex gap-2 items-center">
+                                                        <Image
+                                                            src={icons.helpIcon}
+                                                            alt="help"
+                                                        />
+                                                        <p className="text-black">Help</p>
+                                                    </div>
                                                     <Image
-                                                        src={icons.helpIcon}
-                                                        alt="help"
-                                                    />
-                                                    <p>Help</p>
-                                                </div>
-                                                <Image
-                                                    src={icons.chevronRight}
-                                                    alt="login with google"
-                                                />
-                                            </div>
-                                            <div className="flex justify-between items-center py-6">
-                                                <div className="flex gap-2 items-center">
-                                                    <Image
-                                                        src={icons.googleIcon}
+                                                        src={icons.chevronRight}
                                                         alt="login with google"
                                                     />
-                                                    <p>Logout</p>
                                                 </div>
-                                                <Image
-                                                    src={icons.logoutIcon}
-                                                    alt="logout"
-                                                />
-                                            </div>
+                                            </Link>
+                                            {isConnected &&
+                                            loggedInVia === LOGGED_IN.GOOGLE ? (
+                                                <div
+                                                    className="flex justify-between items-center py-6 cursor-pointer"
+                                                    onClick={signOut}
+                                                >
+                                                    <div className="flex gap-2 items-center">
+                                                        <Image
+                                                            src={icons.googleIcon}
+                                                            alt="login with google"
+                                                        />
+                                                        <p className="text-black">
+                                                            Logout
+                                                        </p>
+                                                    </div>
+                                                    <Image
+                                                        src={icons.logoutIcon}
+                                                        alt="logout"
+                                                    />
+                                                </div>
+                                            ) : null}
                                         </div>
                                     </div>
                                 </Dialog.Panel>

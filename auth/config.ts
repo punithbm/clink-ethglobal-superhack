@@ -21,10 +21,6 @@ export const options: Web3AuthOptions = {
 
 // https://web3auth.io/docs/sdk/pnp/web/modal/initialize#configuring-adapters
 export const modalConfig = {
-  [WALLET_ADAPTERS.TORUS_EVM]: {
-    label: 'torus',
-    showOnModal: false,
-  },
   [WALLET_ADAPTERS.METAMASK]: {
     label: 'metamask',
     showOnDesktop: true,

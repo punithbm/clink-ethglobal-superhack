@@ -13,6 +13,8 @@ import chevronRight from "../../public/assets/images/chevron_right.svg";
 import copyBlack from "../../public/assets/images/copy_black.svg";
 import logoutIcon from "../../public/assets/images/logout_icon.svg";
 import helpIcon from "../../public/assets/images/help_icon.svg";
+import downloadBtnIconBlack from "../../public/assets/images/download_btn_icon_black.svg";
+import shareBtnIconWhite from "../../public/assets/images/share_btn_icon_white.svg";
 
 export type TImages =
     | "logo"
@@ -29,6 +31,8 @@ export type TImages =
     | "logoutIcon"
     | "helpIcon"
     | "downloadBtnIcon"
+    | "downloadBtnIconBlack"
+    | "shareBtnIconWhite"
     | "ethLogo";
 
 export type TNextImage = {
@@ -53,4 +57,6 @@ export const icons: Record<TImages, TNextImage> = {
     logoutIcon,
     helpIcon,
     ethLogo,
+    downloadBtnIconBlack,
+    shareBtnIconWhite,
 };

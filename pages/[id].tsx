@@ -1,15 +1,15 @@
-import { useRouter } from 'next/router';
-import React from 'react';
-import ShareLink from '../ui_components/ShareLinkPage';
-import { WagmiConfig, createConfig, configureChains } from 'wagmi';
-import { baseGoerli } from 'wagmi/chains';
+import { useRouter } from "next/router";
+import React from "react";
+import ShareLink from "../ui_components/ShareLinkPage";
+import { WagmiConfig, createConfig, configureChains } from "wagmi";
+import { baseGoerli } from "wagmi/chains";
 
-import { publicProvider } from 'wagmi/providers/public';
+import { publicProvider } from "wagmi/providers/public";
 
-import { CoinbaseWalletConnector } from 'wagmi/connectors/coinbaseWallet';
-import { InjectedConnector } from 'wagmi/connectors/injected';
-import { MetaMaskConnector } from 'wagmi/connectors/metaMask';
-import { baseRPC } from '../auth/config';
+import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
+import { InjectedConnector } from "wagmi/connectors/injected";
+import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { baseRPC } from "../auth/config";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains([baseGoerli], [publicProvider()]);
 
@@ -20,7 +20,7 @@ const config = createConfig({
     new CoinbaseWalletConnector({
       chains,
       options: {
-        appName: 'micropay',
+        appName: "micropay",
         jsonRpcUrl: baseRPC,
         chainId: baseGoerli.id,
       },
@@ -28,7 +28,7 @@ const config = createConfig({
     new InjectedConnector({
       chains,
       options: {
-        name: 'Injected',
+        name: "Injected",
         shimDisconnect: true,
       },
     }),
@@ -39,7 +39,7 @@ const config = createConfig({
 
 export default function claim() {
   const router = useRouter();
-  const uuid = router?.query?.id as string;
+  const uuid = router.asPath;
   return (
     <WagmiConfig config={config}>
       <ShareLink uuid={uuid} />
