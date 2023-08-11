@@ -13,7 +13,7 @@ const nextConfig = {
         basePath: "",
     },
     compiler: {
-        removeConsole: process.env.NEXT_PUBLIC_ENV === "dev" ? false : true,
+        removeConsole: false,
     },
     webpack: (config, { isServer }) => {
         config.plugins.push(

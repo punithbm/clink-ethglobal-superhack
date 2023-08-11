@@ -19,10 +19,10 @@ import dynamic from "next/dynamic";
 import { copyToClipBoard, trimAddress } from "../../utils";
 import { QRComponent } from "./QRComponent";
 import { DepositAmountComponent } from "./DepositAmountComponent";
-import { useWagmi } from "../../utils/wagmi/WagmiContext";
 import { toast } from "react-toastify";
 import { serializeError } from "eth-rpc-errors";
-import { fetchBalance } from "wagmi/actions";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { useAccount } from "wagmi";
 
 export default dynamic(() => Promise.resolve(DepositAmountModal), {
     ssr: false,
@@ -34,59 +34,14 @@ export interface IDepositAmountModal {
     tokenPrice: string;
     fetchBalance: () => void;
 }
-export declare type QRCodeStylingOptions = {
-    type?: DrawType;
-    shape?: ShapeType;
-    width?: number;
-    height?: number;
-    margin?: number;
-    data?: string;
-    image?: string;
-    qrOptions?: {
-        typeNumber?: TypeNumber;
-        mode?: Mode;
-        errorCorrectionLevel?: ErrorCorrectionLevel;
-    };
-    imageOptions?: {
-        hideBackgroundDots?: boolean;
-        imageSize?: number;
-        crossOrigin?: string;
-        margin?: number;
-    };
-    dotsOptions?: {
-        type?: DotType;
-        color?: string;
-        gradient?: Gradient;
-    };
-    cornersSquareOptions?: {
-        type?: CornerSquareType;
-        color?: string;
-        gradient?: Gradient;
-    };
-    cornersDotOptions?: {
-        type?: CornerDotType;
-        color?: string;
-        gradient?: Gradient;
-    };
-    backgroundOptions?: {
-        round?: number;
-        color?: string;
-        gradient?: Gradient;
-    };
-};
-const useQRCodeStyling = (options: QRCodeStylingOptions): QRCodeStyling | null => {
-    if (typeof window !== "undefined") {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const QRCodeStylingLib = require("qr-code-styling");
-        const qrCodeStyling: QRCodeStyling = new QRCodeStylingLib(options);
-        return qrCodeStyling;
-    }
-    return null;
-};
+
 export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
     const { open, setOpen, walletAddress, tokenPrice, fetchBalance } = props;
 
-    const { getAccount, injectConnector, connect, baseGoerli } = useWagmi();
+    // const { getAccount, injectConnector, connect, baseGoerli } = useWagmi();
+
+    const { isConnecting, address, isConnected } = useAccount();
+    const { openConnectModal } = useConnectModal();
 
     const [connecting, setConnecting] = useState(false);
 
@@ -131,17 +86,19 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
         setShowDeposit(true);
     };
 
+    useEffect(() => {
+        console.log("came to ue");
+        if (connecting) {
+            handleWalletConnectFlow();
+            toast.success("Wallet Connected Successfully");
+        }
+    }, [isConnecting]);
+
     const handleExternalWalletClick = async () => {
         try {
-            const account = await getAccount();
-            if (!account || !account.isConnected) {
+            if (!isConnected) {
                 setConnecting(true);
-                await connect({
-                    chainId: baseGoerli.id,
-                    connector: injectConnector,
-                });
-                handleWalletConnectFlow();
-                toast.success("Wallet Connected Successfully");
+                await openConnectModal?.();
             } else {
                 handleWalletConnectFlow();
             }

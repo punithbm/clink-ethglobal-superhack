@@ -17,29 +17,26 @@
         --background-end-rgb: 0, 0, 0;
     }
 }
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
 main {
     min-height: 100%;
 }
-
 body {
     color: rgb(var(--foreground-rgb));
-    background: radial-gradient(61.66% 83.83% at 72.76% 81.19%,
+    background: radial-gradient(
+            61.66% 83.83% at 72.76% 81.19%,
             rgba(51, 202, 175, 0.44) 0%,
-            rgba(51, 202, 175, 0) 100%),
+            rgba(51, 202, 175, 0) 100%
+        ),
         #150937;
 }
-
-body>div {
+body > div {
     min-height: 100%;
 }
-
 html,
 body {
     min-height: 100%;
@@ -58,18 +55,16 @@ body {
 
 .dollorInput[type="number"]::-webkit-inner-spin-button,
 .dollorInput[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .shareLinkBg {
     background: linear-gradient(148deg, #051923 0%, #0b254d 100%);
 }
-
 .inputBg {
     backdrop-filter: blur(30px);
 }
-
 .header-menu-list .header-submenu {
     display: none;
 }

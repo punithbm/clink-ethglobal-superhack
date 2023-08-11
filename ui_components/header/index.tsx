@@ -16,11 +16,20 @@ interface IHeader {
     step: number;
     onHamburgerClick: () => void;
     signOut: () => Promise<void>;
+    setWalletAddress: (val: string) => void;
 }
 
 const Header = (props: IHeader) => {
     const menuRef = useRef<HTMLDivElement>(null);
-    const { walletAddress, signIn, step, handleSteps, onHamburgerClick, signOut } = props;
+    const {
+        walletAddress,
+        signIn,
+        step,
+        handleSteps,
+        onHamburgerClick,
+        signOut,
+        setWalletAddress,
+    } = props;
     const {
         dispatch,
         state: { googleUserInfo, address, isConnected, loggedInVia },
@@ -65,8 +74,17 @@ const Header = (props: IHeader) => {
     const handleDisConnect = async () => {
         await disconnect();
         handleSteps(ESteps.ONE);
+        setWalletAddress("");
         dispatch({
             type: ACTIONS.LOGOUT,
+            payload: "",
+        });
+        dispatch({
+            type: ACTIONS.LOGGED_IN_VIA,
+            payload: "",
+        });
+        dispatch({
+            type: ACTIONS.SET_ADDRESS,
             payload: "",
         });
     };

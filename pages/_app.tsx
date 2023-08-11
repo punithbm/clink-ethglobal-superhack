@@ -6,15 +6,15 @@ import GlobalContextProvider from "../context/GlobalContext";
 import { WagmiWrapper } from "../utils/wagmi/WagmiContext";
 
 const Layout: FC<AppProps> = ({ Component, pageProps }) => {
-  return (
-    <main>
-      <GlobalContextProvider>
-        <WagmiWrapper>
-          <Component {...pageProps} />
-        </WagmiWrapper>
-      </GlobalContextProvider>
-    </main>
-  );
+    return (
+        <main>
+            <GlobalContextProvider>
+                <WagmiWrapper>
+                    <Component {...pageProps} />
+                </WagmiWrapper>
+            </GlobalContextProvider>
+        </main>
+    );
 };
 
 export default Layout;

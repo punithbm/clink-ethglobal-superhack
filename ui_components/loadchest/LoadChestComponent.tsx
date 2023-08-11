@@ -68,7 +68,9 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const [balLoading, setBalLoading] = useState(false);
 
     useEffect(() => {
-        fetchBalance();
+        if (address) {
+            fetchBalance();
+        }
     }, [address]);
 
     const fetchBalance = async () => {
@@ -118,7 +120,6 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         } else {
             setBtnDisable(true);
         }
-        console.log(btnDisable);
     };
 
     const dollorToToken = (val: string) => {

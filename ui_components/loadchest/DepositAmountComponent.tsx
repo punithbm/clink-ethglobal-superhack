@@ -108,6 +108,7 @@ export const DepositAmountComponent: FC<IDepositAmountComponent> = (props) => {
 
                 <div className="mt-5 cursor-pointer">
                     <PrimaryBtn
+                        className="lg:w-[90%]"
                         title={transactionLoading ? "Processing.." : "Deposit Amount"}
                         onClick={() => handleDepositClick()}
                     />

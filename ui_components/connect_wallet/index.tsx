@@ -3,6 +3,7 @@ import { icons } from "../../utils/images";
 import SecondaryBtn from "../SecondaryBtn";
 import { THandleStep } from "../../pages";
 import Image from "next/image";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface IConnectWallet extends THandleStep {
     signIn: () => Promise<void>;
@@ -40,6 +41,9 @@ export default function ConnectWallet(props: IConnectWallet) {
                         onClick={connectWallet}
                     />
                 </div>
+                {/* <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg my-5">
+                    <ConnectButton />
+                </div> */}
                 <p className="text-[16px] leading-[18px] text-center text-white/50 mb-6 lg:mb-4">
                     OR
                 </p>
