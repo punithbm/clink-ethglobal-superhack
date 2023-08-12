@@ -93,6 +93,7 @@ const BottomSheet: FC<TProps> = (props) => {
                                                 </div>
                                                 <div
                                                     className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6 cursor-pointer"
+                                                    role="presentation"
                                                     onClick={copyToClipBoard}
                                                 >
                                                     <p className="text-black">
@@ -108,6 +109,7 @@ const BottomSheet: FC<TProps> = (props) => {
                                                         LOGGED_IN.EXTERNAL_WALLET && (
                                                         <div
                                                             className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6"
+                                                            role="presentation"
                                                             onClick={() => {
                                                                 handleDisConnect();
                                                             }}
@@ -151,6 +153,7 @@ const BottomSheet: FC<TProps> = (props) => {
                                             {!isConnected ? (
                                                 <div
                                                     className="flex justify-between items-center py-6 border-b-2 cursor-pointer"
+                                                    role="presentation"
                                                     onClick={signIn}
                                                 >
                                                     <div className="flex gap-2 items-center">
@@ -190,6 +193,7 @@ const BottomSheet: FC<TProps> = (props) => {
                                             loggedInVia === LOGGED_IN.GOOGLE ? (
                                                 <div
                                                     className="flex justify-between items-center py-6 cursor-pointer"
+                                                    role="presentation"
                                                     onClick={signOut}
                                                 >
                                                     <div className="flex gap-2 items-center">

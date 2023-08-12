@@ -7,8 +7,9 @@ import { InjectedConnector } from "wagmi/connectors/injected";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
 import { publicProvider } from "wagmi/providers/public";
 
-import { baseRPC } from "../auth/config";
+import { productName } from "../constants";
 import ShareLink from "../ui_components/ShareLinkPage";
+import { BaseGoerli } from "../utils/chain/baseGoerli";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
     [baseGoerli],
@@ -22,9 +23,9 @@ const config = createConfig({
         new CoinbaseWalletConnector({
             chains,
             options: {
-                appName: "micropay",
-                jsonRpcUrl: baseRPC,
-                chainId: baseGoerli.id,
+                appName: productName,
+                jsonRpcUrl: BaseGoerli.info.url,
+                chainId: BaseGoerli.coinId,
             },
         }),
         new InjectedConnector({

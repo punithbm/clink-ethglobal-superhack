@@ -119,7 +119,7 @@ const Header = (props: IHeader) => {
                             disabled={isConnected}
                         >
                             <Image
-                                src={!isConnected ? icons.googleIcon : icons.ethLogo}
+                                src={!isConnected ? icons.googleIcon : icons.baseLogo}
                                 alt="google login"
                                 width={20}
                                 height={20}
@@ -159,6 +159,7 @@ const Header = (props: IHeader) => {
                                                     </div>
                                                     <div
                                                         className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6 cursor-pointer"
+                                                        role="presentation"
                                                         onClick={copyToClipBoard}
                                                     >
                                                         <p className="text-black">
@@ -174,6 +175,7 @@ const Header = (props: IHeader) => {
                                                             LOGGED_IN.EXTERNAL_WALLET && (
                                                             <div
                                                                 className="w-[95%] h-[52px] bg-white rounded-lg mx-auto flex justify-between items-center px-4 mb-6"
+                                                                role="presentation"
                                                                 onClick={() => {
                                                                     handleDisConnect();
                                                                 }}
@@ -190,6 +192,7 @@ const Header = (props: IHeader) => {
                                                 {!isConnected ? (
                                                     <div
                                                         className="flex justify-between items-center py-6 border-b-2 cursor-pointer"
+                                                        role="presentation"
                                                         onClick={signIn}
                                                     >
                                                         <div className="flex gap-2 items-center">
@@ -235,6 +238,7 @@ const Header = (props: IHeader) => {
                                                 loggedInVia === LOGGED_IN.GOOGLE ? (
                                                     <div
                                                         className="flex justify-between items-center py-6 cursor-pointer"
+                                                        role="presentation"
                                                         onClick={handleLogout}
                                                     >
                                                         <div className="flex gap-2 items-center">

@@ -160,6 +160,8 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                                 <QRComponent
                                                     walletAddress={url}
                                                     isShareQr={true}
+                                                    widthPx={240}
+                                                    heightPx={240}
                                                 />
                                             </div>
                                             <ul className="flex items-center justify-center">

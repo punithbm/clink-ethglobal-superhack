@@ -173,7 +173,11 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                             </div>
                                         </div>
                                     ) : showQR && !showDeposit ? (
-                                        <QRComponent walletAddress={walletAddress} />
+                                        <QRComponent
+                                            walletAddress={walletAddress}
+                                            widthPx={240}
+                                            heightPx={240}
+                                        />
                                     ) : (
                                         showDeposit &&
                                         !showQR && (

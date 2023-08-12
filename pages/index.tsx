@@ -2,12 +2,15 @@ import "react-toastify/dist/ReactToastify.css";
 import "./globals.css";
 
 import { useConnectModal } from "@rainbow-me/rainbowkit";
-import { Web3AuthConfig, Web3AuthModalPack } from "@safe-global/auth-kit";
 import { EthersAdapter, SafeAccountConfig, SafeFactory } from "@safe-global/protocol-kit";
-import { GelatoRelayPack } from "@safe-global/relay-kit";
 import { initWasm } from "@trustwallet/wallet-core";
-import { CHAIN_NAMESPACES, WALLET_ADAPTERS } from "@web3auth/base";
-import { Web3AuthOptions } from "@web3auth/modal";
+import {
+    CHAIN_NAMESPACES,
+    SafeEventEmitterProvider,
+    WALLET_ADAPTERS,
+} from "@web3auth/base";
+import { EthereumPrivateKeyProvider } from "@web3auth/ethereum-provider";
+import { Web3AuthNoModal } from "@web3auth/no-modal";
 import { OpenloginAdapter } from "@web3auth/openlogin-adapter";
 import { serializeError } from "eth-rpc-errors";
 import { ethers } from "ethers";
@@ -16,7 +19,13 @@ import { ToastContainer } from "react-toastify";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 
-import { baseGoerli, projectId } from "../constants/base";
+import {
+    oauthClientId,
+    productName,
+    web3AuthClientId,
+    web3AuthLoginType,
+    web3AuthVerifier,
+} from "../constants";
 import { ACTIONS, GlobalContext } from "../context/GlobalContext";
 import { getStore } from "../store/GlobalStore";
 import BottomSheet from "../ui_components/bottom-sheet";
@@ -24,7 +33,7 @@ import ConnectWallet from "../ui_components/connect_wallet/";
 import Header from "../ui_components/header";
 import HomePage from "../ui_components/home/HomePage";
 import { LoadChestComponent } from "../ui_components/loadchest/LoadChestComponent";
-import LoadingTokenPage from "../ui_components/loadingTokenPage";
+import { BaseGoerli } from "../utils/chain/baseGoerli";
 import { useWagmi } from "../utils/wagmi/WagmiContext";
 import { Wallet } from "../utils/wallet";
 
@@ -57,44 +66,52 @@ export default function Home() {
     const { getAccount, disconnect } = useWagmi();
     const { openConnectModal } = useConnectModal();
     const { address, isConnecting, isConnected } = useAccount();
+    const [web3auth, setWeb3auth] = useState<Web3AuthNoModal | null>(null);
+    const [provider, setProvider] = useState<SafeEventEmitterProvider | null>(null);
 
     useEffect(() => {
         async function initializeOpenLogin() {
-            const options: Web3AuthOptions = {
-                clientId:
-                    "BGYt14IfWWn05BWMxtbsTx9SLMkuU1RJmj08ISnj0sTrO9fie5r-IZt7oh0jpqn5GrkZFWqqX6okxHCJEfYJ_uI",
-                web3AuthNetwork: "testnet",
-                chainConfig: {
-                    chainNamespace: CHAIN_NAMESPACES.EIP155,
-                    chainId: "0x14a33",
-                    rpcTarget: "https://goerli.base.org",
-                },
-                uiConfig: {
-                    appName: "MicroPay",
-                    theme: "dark",
-                    loginMethodsOrder: ["google", "facebook"],
-                },
+            const chainConfig = {
+                chainNamespace: CHAIN_NAMESPACES.EIP155,
+                chainId: BaseGoerli.chainIdHex,
+                rpcTarget: BaseGoerli.info.rpc,
+                displayName: BaseGoerli.name,
+                blockExplorer: BaseGoerli.explorer.url,
+                ticker: BaseGoerli.symbol,
+                tickerName: "Ethereum",
             };
 
-            const modalConfig = {
-                [WALLET_ADAPTERS.TORUS_EVM]: {
-                    label: "torus",
-                    showOnModal: false,
-                },
-                [WALLET_ADAPTERS.METAMASK]: {
-                    label: "metamask",
-                    showOnDesktop: false,
-                    showOnMobile: false,
-                },
-            };
+            const web3auth = new Web3AuthNoModal({
+                clientId: web3AuthClientId,
+                web3AuthNetwork: "mainnet",
+                chainConfig: chainConfig,
+            });
 
-            const web3AuthConfig: Web3AuthConfig = {
-                txServiceUrl: "https://safe-transaction-goerli.safe.global",
-            };
-            // Instantiate and initialize the pack
-            const web3AuthModalPack = new Web3AuthModalPack(web3AuthConfig);
-            await web3AuthModalPack.init({ options, modalConfig });
-            setSafeLogin(web3AuthModalPack);
+            const privateKeyProvider = new EthereumPrivateKeyProvider({
+                config: { chainConfig },
+            });
+
+            const openloginAdapter = new OpenloginAdapter({
+                adapterSettings: {
+                    uxMode: "popup",
+                    loginConfig: {
+                        google: {
+                            name: productName,
+                            verifier: web3AuthVerifier,
+                            typeOfLogin: web3AuthLoginType,
+                            clientId: oauthClientId,
+                        },
+                    },
+                },
+                loginSettings: {
+                    mfaLevel: "none",
+                },
+                privateKeyProvider,
+            });
+            web3auth.configureAdapter(openloginAdapter);
+            setWeb3auth(web3auth);
+            await web3auth.init();
+            setProvider(web3auth.provider);
         }
 
         initializeOpenLogin();
@@ -116,7 +133,6 @@ export default function Home() {
     }, [isConnected, address]);
 
     useEffect(() => {
-        console.log(loggedInVia, "login in via");
         if (
             localStorage.getItem("isConnected") === "true" &&
             address &&
@@ -136,66 +152,75 @@ export default function Home() {
     }, []);
 
     useEffect(() => {
-        if (
-            localStorage.getItem("isConnected") === "true" &&
-            localStorage.getItem("isGoogleLogin") === "true" &&
-            safeLogin
-        ) {
-            signIn();
+        if (web3auth && web3auth.connected) {
+            getAccounts().then((res: any) => {
+                dispatch({
+                    type: ACTIONS.LOGGED_IN_VIA,
+                    payload: LOGGED_IN.GOOGLE,
+                });
+                dispatch({
+                    type: ACTIONS.SET_ADDRESS,
+                    payload: res,
+                });
+                setWalletAddress(res);
+                handleSteps(ESTEPS.THREE);
+            });
         }
-    }, [safeLogin]);
-
-    useEffect(() => {
-        if (googleSignInStarted) {
-            signIn();
-        }
-    }, [safeLogin]);
-
-    const [googleSignInStarted, setGoogleSignInStarted] = useState(false);
+    }, [provider]);
 
     const signIn = async () => {
-        // localStorage.setItem("loginAttempted", "true");
-        // try {
-        //     await openLogin.login({
-        //         loginProvider: "google",
-        //         redirectUrl: `${window.origin}`,
-        //         mfaLevel: "none",
-        //     });
-        // } catch (error) {
-        //     console.log("error", error);
-        // }
-        // setOpenBottomSheet(false);
-        setGoogleSignInStarted(true);
-        if (safeLogin) {
-            const authKitSignData = await safeLogin.signIn();
-            localStorage.setItem("isConnected", "true");
-            localStorage.setItem("isGoogleLogin", "true");
-            // await deploySafeContract();
-            dispatch({
-                type: ACTIONS.LOGGED_IN_VIA,
-                payload: LOGGED_IN.GOOGLE,
-            });
-            dispatch({
-                type: ACTIONS.SET_ADDRESS,
-                payload: authKitSignData.eoa,
-            });
-            setWalletAddress(authKitSignData.eoa);
-            handleSteps(ESTEPS.THREE);
-            setGoogleSignInStarted(false);
+        if (!web3auth) {
+            console.log("web3auth not initialized yet");
+            return;
+        }
+
+        if (web3auth.connected) {
+            console.log("connected");
+            return;
+        }
+        const web3authProvider = await web3auth.connectTo(WALLET_ADAPTERS.OPENLOGIN, {
+            loginProvider: "google",
+        });
+        setProvider(web3authProvider);
+        const acc = (await getAccounts()) as any;
+        console.log(acc, "addresses");
+        localStorage.setItem("isConnected", "true");
+        localStorage.setItem("isGoogleLogin", "true");
+        dispatch({
+            type: ACTIONS.LOGGED_IN_VIA,
+            payload: LOGGED_IN.GOOGLE,
+        });
+        dispatch({
+            type: ACTIONS.SET_ADDRESS,
+            payload: acc,
+        });
+        setWalletAddress(acc);
+        handleSteps(ESTEPS.THREE);
+    };
+
+    const getAccounts = async () => {
+        if (!provider) {
+            console.log("provider not initialized yet");
+            return;
+        }
+        try {
+            const contractAddress = await deploySafeContract();
+
+            return await contractAddress;
+        } catch (error) {
+            return error;
         }
     };
 
     const deploySafeContract = async () => {
-        console.log("deploy safe contract called");
-        const provider = new ethers.providers.Web3Provider(safeLogin.getProvider());
-        const signer = provider.getSigner();
-        console.log("deploy signer", signer);
+        const ethProvider = new ethers.providers.Web3Provider(provider!);
+        const signer = await ethProvider.getSigner();
         const ethAdapter = new EthersAdapter({
             ethers,
-            signerOrProvider: signer || provider,
+            signerOrProvider: signer || ethProvider,
         });
         const safeFactory = await SafeFactory.create({ ethAdapter: ethAdapter });
-        console.log("deploy safeFactory", safeFactory);
+        const address = signer.getAddress() as unknown as string;
         const safeAccountConfig: SafeAccountConfig = {
             owners: [await signer.getAddress()],
             threshold: 1,
@@ -205,22 +230,7 @@ export default function Home() {
             safeAccountConfig,
         );
         console.log("deploy safeSdkOwner1", safeSdkOwnerPredicted);
-        const safeSdkOwner1 = await safeFactory.deploySafe({ safeAccountConfig });
-        // const relayKit = new GelatoRelayPack(
-        //     "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
-        // );
-
-        // const response = await relayKit.relayTransaction({
-        //     target: "0x...", // The Safe address
-        //     encodedTransaction: "0x...", // Encoded Safe transaction data
-        //     chainId: "100",
-        // });
-
-        // console.log("deploy safeSdkOwner1", safeSdkOwner1);
-        // const safeAddress = await safeSdkOwner1.getAddress();
-        console.log("Your Safe has been deployed:");
-        // console.log(`https://goerli.etherscan.io/address/${safeAddress}`);
-        // console.log(`https://app.safe.global/gor:${safeAddress}`);
+        return safeSdkOwnerPredicted;
     };
 
     const getAddress = async (prvKey: string) => {
@@ -236,7 +246,7 @@ export default function Home() {
     };
 
     const signOut = async () => {
-        await safeLogin.signOut();
+        await web3auth?.logout();
         localStorage.removeItem("isGoogleLogin");
         localStorage.removeItem("isConnected");
         setStep(ESTEPS.ONE);
@@ -283,6 +293,7 @@ export default function Home() {
                         openLogin={openLogin}
                         handleSteps={handleSteps}
                         safeLogin={safeLogin}
+                        provider={provider}
                     />
                 );
             default:

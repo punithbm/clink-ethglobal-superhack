@@ -15,7 +15,7 @@ import { FC, useEffect, useRef, useState } from "react";
 
 import { copyToClipBoard, trimAddress } from "../../utils";
 import { icons } from "../../utils/images";
-export declare type QRCodeStylingOptions = {
+export declare type TQRCodeStylingOptions = {
     type?: DrawType;
     shape?: ShapeType;
     width?: number;
@@ -55,7 +55,7 @@ export declare type QRCodeStylingOptions = {
         gradient?: Gradient;
     };
 };
-const useQRCodeStyling = (options: QRCodeStylingOptions): QRCodeStyling | null => {
+const useQRCodeStyling = (options: TQRCodeStylingOptions): QRCodeStyling | null => {
     //Only do this on the client
     if (typeof window !== "undefined") {
         // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -68,12 +68,14 @@ const useQRCodeStyling = (options: QRCodeStylingOptions): QRCodeStyling | null =
 export interface IQRComponent {
     walletAddress: string;
     isShareQr?: boolean;
+    widthPx: number;
+    heightPx: number;
 }
 export const QRComponent: FC<IQRComponent> = (props) => {
-    const { walletAddress, isShareQr } = props;
+    const { walletAddress, isShareQr, widthPx, heightPx } = props;
     const [options] = useState<Options>({
-        width: 240,
-        height: 240,
+        width: widthPx,
+        height: heightPx,
         type: "svg",
         image: icons.logo.src,
         margin: 5,

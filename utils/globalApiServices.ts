@@ -1,4 +1,4 @@
-import { baseRPC } from "../auth/config";
+import { BaseGoerli } from "./chain/baseGoerli";
 
 export const globalApiService = (method: string, params?: any) => {
     const headers = new Headers();
@@ -17,7 +17,7 @@ export const globalApiService = (method: string, params?: any) => {
         body,
     };
 
-    const jsonRpcUrl = baseRPC;
+    const jsonRpcUrl = BaseGoerli.info.url;
 
     return fetch(jsonRpcUrl, requestOptions)
         .then((response) => response.json())

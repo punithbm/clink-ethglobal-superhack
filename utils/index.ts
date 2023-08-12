@@ -59,6 +59,7 @@ export const hexToNumber = (val: string, divider = 1) => {
 };
 
 export const trimAddress = (val: string) => {
+    console.log(val, "address");
     const firstFour = val.substring(0, 4);
     const lastFour = val.substring(val.length - 4, val.length);
     return firstFour + "..." + lastFour;

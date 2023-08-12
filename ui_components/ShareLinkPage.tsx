@@ -32,6 +32,7 @@ import { useWagmi } from "../utils/wagmi/WagmiContext";
 import { Wallet } from "../utils/wallet";
 import { TRANSACTION_TYPE, TTranx } from "../utils/wallet/types";
 import ClaimBtnModal from "./ClaimBtnModal";
+import { QRComponent } from "./loadchest/QRComponent";
 import PrimaryBtn from "./PrimaryBtn";
 import SecondaryBtn from "./SecondaryBtn";
 import { ShareBtnModal } from "./ShareBtnModal";
@@ -60,6 +61,7 @@ const ShareLink: FC<IShareLink> = (props) => {
     const [processing, setProcessing] = useState(false);
     const [openClaimModal, setOpenClaimModal] = useState(false);
     const [openShareModal, setOpenShareModal] = useState(false);
+    const [url, setUrl] = useState("");
     const shareData = {
         text: "Here is you Gifted Chest",
         url: typeof window !== "undefined" ? window.location.href : "",
@@ -222,6 +224,7 @@ const ShareLink: FC<IShareLink> = (props) => {
         } else {
             setIsRedirected(true);
         }
+        setUrl(window.location.href);
     }, []);
 
     return (
@@ -240,20 +243,33 @@ const ShareLink: FC<IShareLink> = (props) => {
             />
             <div className="w-full h-[70%] text-center p-4  flex flex-col gap-5 items-center">
                 <p className="text-white text-[20px] font-bold">{headingText}</p>
-                <div className="w-full md:w-[60%] max-w-[450px] h-[300px] rounded-lg shareLinkBg flex flex-col justify-between mb-16">
-                    {isLoading ? (
-                        <div className="w-full h-full mt-5 ml-5">
-                            <div className="w-[15%] h-[20%] bg-white/10 animate-pulse rounded-lg mb-2"></div>
-                            <div className="w-[10%] h-[12%] bg-white/10 animate-pulse rounded-lg "></div>
+
+                <div className="w-full md:w-[60%] max-w-[450px] h-[300px] shareLinkBg mb-16 cardShine">
+                    <div className=" rounded-lg profileBackgroundImage flex flex-col justify-between h-full">
+                        {isLoading ? (
+                            <div className="w-full h-full mt-5 ml-5">
+                                <div className="w-[15%] h-[20%] bg-white/10 animate-pulse rounded-lg mb-2"></div>
+                                <div className="w-[10%] h-[12%] bg-white/10 animate-pulse rounded-lg "></div>
+                            </div>
+                        ) : (
+                            <div className="flex justify-between">
+                                <div className="flex gap-1 flex-col text-start ml-3">
+                                    <p className="text-[40px] text-[#F4EC97] font bold">{`${linkValueUsd}`}</p>
+                                    <p className="text-sm text-white/50">{`~ ${tokenValue} ETH`}</p>
+                                </div>
+                                <div className="pr-8 pt-2">
+                                    <QRComponent
+                                        walletAddress={url}
+                                        isShareQr={true}
+                                        widthPx={120}
+                                        heightPx={120}
+                                    />
+                                </div>
+                            </div>
+                        )}
+                        <div className="self-end">
+                            <Image className="" src={icons.tchest} alt="Chest" />
                         </div>
-                    ) : (
-                        <div className="flex gap-1 flex-col text-start ml-3">
-                            <p className="text-[40px] text-[#F4EC97] font bold">{`${linkValueUsd}`}</p>
-                            <p className="text-sm text-white/50">{`~ ${tokenValue} ETH`}</p>
-                        </div>
-                    )}
-                    <div className="self-end">
-                        <Image className="" src={icons.tchest} alt="Chest" />
                     </div>
                 </div>
                 {isRedirected ? (
@@ -279,7 +295,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                         </div>
                         <SecondaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => setOpenClaimModal(true)}
+                            onClick={() => handleConnect()}
                             rightImage={processing ? undefined : icons.downloadBtnIcon}
                         />
                     </>
@@ -287,7 +303,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                     <>
                         <PrimaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => setOpenClaimModal(true)}
+                            onClick={() => handleConnect()}
                             rightImage={
                                 processing ? undefined : icons.downloadBtnIconBlack
                             }

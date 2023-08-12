@@ -1,32 +1,29 @@
 import { CHAINS_ENUMS, CHAINS_IDS } from ".";
 
-export const Base = {
+export const BaseGoerli = {
     index: 10,
-    id: CHAINS_IDS.BASE,
-    name: "Base Mainnet",
+    id: CHAINS_IDS.BASEGOERLI,
+    name: "Base Görli",
     logo: "https://storage.googleapis.com/frontier-wallet/blockchains/base/info/logo.svg",
     coinId: 8453,
     symbol: "ETH",
-    chainId: "8453",
-    chainIdHex: "0x2105",
+    chainId: "84531",
+    chainIdHex: "0x14a33",
     decimals: 18,
     blockchain: CHAINS_ENUMS.ETHEREUM,
-    derivation: [
-        {
-            path: "m/44'/60'/0'/0/0",
-            basePath: "m/44'/60'/${index}'/0/0",
-        },
-    ],
+    derivation: {
+        path: "m/44'/60'/0'/0/0",
+    },
     curve: "secp256k1",
     publicKeyType: "secp256k1Extended",
     explorer: {
-        url: "https://basescan.org",
-        explorerName: "BaseScan",
+        url: "https://goerli.basescan.org",
+        explorerName: "Base Görli Scan",
         txPath: "/tx/",
         accountPath: "/address/",
     },
     info: {
-        url: "https://mainnet.base.org/",
-        rpc: "https://mainnet.base.org/",
+        url: "https://goerli.base.org/",
+        rpc: "https://goerli.base.org/",
     },
 };

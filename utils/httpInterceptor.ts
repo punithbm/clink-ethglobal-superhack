@@ -5,13 +5,13 @@ import axios, {
     AxiosResponse,
 } from "axios";
 
-import { baseGoerli } from "../constants/base";
 import { TApiResponse } from "../types";
 import { toastFlashMessage } from ".";
+import { BaseGoerli } from "./chain/baseGoerli";
 
 const axiosInstance: AxiosInstance = axios.create();
 
-axiosInstance.defaults.baseURL = `${baseGoerli.networks.testnet.url}`;
+axiosInstance.defaults.baseURL = `${BaseGoerli.info.rpc}`;
 axiosInstance.interceptors.request.use(
     function (config: AxiosRequestConfig) {
         return config;
