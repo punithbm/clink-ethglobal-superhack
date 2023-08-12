@@ -3,6 +3,8 @@ import "react-toastify/dist/ReactToastify.css";
 import AccountAbstraction from "@safe-global/account-abstraction-kit-poc";
 import { EthersAdapter, SafeAccountConfig, SafeFactory } from "@safe-global/protocol-kit";
 import { GelatoRelayPack } from "@safe-global/relay-kit";
+import Confetti from "react-confetti";
+
 import {
     MetaTransactionData,
     MetaTransactionOptions,
@@ -78,6 +80,7 @@ const ShareLink: FC<IShareLink> = (props) => {
     const [openClaimModal, setOpenClaimModal] = useState(false);
     const [openShareModal, setOpenShareModal] = useState(false);
     const [showQr, setShowQr] = useState(false);
+    const [isClaimSuccessful, setIsClaimSuccessful] = useState(false);
 
     const [url, setUrl] = useState("");
     const shareData = {
@@ -259,9 +262,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                         const task = res.data.task;
                         if (task) {
                             if (task.taskState === "ExecSuccess") {
-                                setProcessing(false);
-                                toast.success("Claimed Successfully");
-                                fetchBalance(fromAddress);
+                                handleClaimSuccess();
                                 if (interval !== null) {
                                     clearInterval(interval);
                                 }
@@ -285,6 +286,13 @@ const ShareLink: FC<IShareLink> = (props) => {
                     }
                 });
         }, intervalInMilliseconds);
+    };
+
+    const handleClaimSuccess = () => {
+        setIsClaimSuccessful(true);
+        setProcessing(false);
+        toast.success("Claimed Successfully");
+        fetchBalance(fromAddress);
     };
 
     useEffect(() => {
@@ -435,6 +443,8 @@ const ShareLink: FC<IShareLink> = (props) => {
             />
             <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
             <QrModal open={showQr} setOpen={setShowQr} value={fromAddress} />
+            {isClaimSuccessful && <Confetti width={2400} height={1200} recycle={false} numberOfPieces={2000} />}
+
             <Footer />
         </div>
     );

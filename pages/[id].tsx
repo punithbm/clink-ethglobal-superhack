@@ -45,14 +45,9 @@ export default function claim() {
     const router = useRouter();
     const uuid = router.asPath;
     return (
-        <WagmiConfig config={config}>
-            <MetaHead
-                title="Clink Safe"
-                description="Share Crypto Rewards Just in Link"
-                imageUrl=""
-                urlEndpoint=""
-            />
-            <ShareLink uuid={uuid} />
-        </WagmiConfig>
+      <WagmiConfig config={config}>
+        <MetaHead title="Hey, Claim your Safe for Free!!" description="Clink Safe | Share Crypto Rewards Just in Link" imageUrl="" urlEndpoint="" />
+        <ShareLink uuid={uuid} />
+      </WagmiConfig>
     );
 }

@@ -13,6 +13,7 @@ import helpIcon from "../../public/assets/images/help_icon.svg";
 import linkWhite from "../../public/assets/images/link_white.svg";
 import linkedinBlue from "../../public/assets/images/linkedin_blue.svg";
 import logo from "../../public/assets/images/logo.svg";
+import logo2 from "../../public/assets/images/logo_clink.png";
 import logoutIcon from "../../public/assets/images/logout_icon.svg";
 import qrWhite from "../../public/assets/images/qr_white.svg";
 import safeLogo from "../../public/assets/images/safe_logo.svg";
@@ -27,6 +28,7 @@ import x from "../../public/assets/images/x.svg";
 
 export type TImages =
     | "logo"
+    | "logo2"
     | "tchest"
     | "walletIcon"
     | "backIcon"
@@ -61,6 +63,7 @@ export type TNextImage = {
 
 export const icons: Record<TImages, TNextImage> = {
     logo,
+    logo2,
     tchest,
     walletIcon,
     backIcon,

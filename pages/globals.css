@@ -70,7 +70,7 @@ body {
 }
 
 .profileBackgroundImage {
-    background-image: url("../public/assets/images/bg_card_topology.svg");
+    background-image: url("https://raw.githubusercontent.com/punithbm/eth-micropay-superhack/develop/public/assets/images/bg_card_topology.svg");
     background-repeat: no-repeat, no-repeat;
     background-size: cover;
 }

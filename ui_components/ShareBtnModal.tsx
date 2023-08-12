@@ -39,7 +39,7 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
         width: 240,
         height: 240,
         type: "svg",
-        image: icons.logo.src,
+        image: icons.logo2.src,
         margin: 5,
         qrOptions: {
             typeNumber: 0,

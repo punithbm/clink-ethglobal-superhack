@@ -104,8 +104,8 @@ const Header = (props: IHeader) => {
                             />
                         </div>
                     ) : (
-                        <div className="flex gap-2 pl-2">
-                            <Image src={icons.logo} alt="logo" className="w-12" />
+                        <div className="flex gap-1 pl-2">
+                            <Image src={icons.logo2} alt="logo" className="w-10" />
                             <p className="text-[16px] font-bold text-white self-center">
                                 Clink Safe
                             </p>
