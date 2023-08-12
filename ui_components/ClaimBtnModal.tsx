@@ -122,7 +122,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                         role="presentation"
                                                     >
                                                         <p className="text-center text-white">
-                                                            {`🏦  Bank Account (Coming soon)`}
+                                                            {`🏦  Bank Transfer (Coming soon)`}
                                                         </p>
                                                     </div>
                                                 </>
@@ -136,7 +136,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                         }}
                                                         inputMode="text"
                                                         type="string"
-                                                        className={`rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer mb-5 pl-0 pt-2 pb-1 backdrop-blur-xl text-[24px] border-none text-center  text-white placeholder-white/40 block w-full focus:outline-none focus:ring-transparent`}
+                                                        className={`rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer mb-5 pl-0 pt-2 pb-1 backdrop-blur-xl text-[14px] border-none text-center  text-white placeholder-white/40 block w-full focus:outline-none focus:ring-transparent`}
                                                         placeholder={"0xfc...71de"}
                                                         value={value}
                                                         onChange={(e) => {

@@ -485,7 +485,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                         className="text-white text-[24px]"
                         strings={[chestLoadingText]}
                         typeSpeed={40}
-                        loop={false}
+                        loop={true}
                     />
                     <Lottie animationData={loaderAnimation} />
                 </div>

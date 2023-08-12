@@ -6,5 +6,5 @@ export const web3AuthVerifier = "micropay";
 export const web3AuthLoginType = "google";
 export const web3AuthClientId =
     "BFWg2RH35EKxZJtntj1l-G2XU8AY0l-yFgFIs9iDbgKAW45ZxE9_qfj6COAWwI-RhOs2pN6OHwgZHgtoHjOlMFM";
-export const productName = "Micropay";
+export const productName = "Clink Safe";
 export const rainbowKitProjectId = "fb3037b60ba3165d90a7f1bb1a727cc5";

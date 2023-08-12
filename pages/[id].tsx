@@ -10,6 +10,7 @@ import { publicProvider } from "wagmi/providers/public";
 import { productName } from "../constants";
 import ShareLink from "../ui_components/ShareLinkPage";
 import { BaseGoerli } from "../utils/chain/baseGoerli";
+import MetaHead from "../ui_components/siteMeta";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
     [baseGoerli],
@@ -45,6 +46,12 @@ export default function claim() {
     const uuid = router.asPath;
     return (
         <WagmiConfig config={config}>
+            <MetaHead
+                title="Clink Safe"
+                description="Share Crypto Rewards Just in Link"
+                imageUrl=""
+                urlEndpoint=""
+            />
             <ShareLink uuid={uuid} />
         </WagmiConfig>
     );
