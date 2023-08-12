@@ -372,7 +372,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                             </div>
                         )}
                         <div className="self-end">
-                            <Image className="" src={icons.tchest} alt="Chest" />
+                            {isClaimSuccessful ? <Image className="mt-[-29px]" src={icons.tchestopen} alt="Chest Open" /> : <Image className="" src={icons.tchest} alt="Chest" />}
                         </div>
                     </div>
                 </div>
