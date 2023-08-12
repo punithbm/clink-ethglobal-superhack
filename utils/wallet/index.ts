@@ -1,8 +1,6 @@
 import { TW, WalletCore } from "@trustwallet/wallet-core";
 import * as bs58 from "bs58";
-
-import { hexToBuffer } from "..";
-import { ISigningInput, TTranx } from "./types";
+import { TTranx } from "./types";
 export class Wallet {
     CoinType: WalletCore["CoinType"];
     HexCoding: WalletCore["HexCoding"];
@@ -181,12 +179,6 @@ export class Wallet {
         switch (chainId) {
             case "ethereum":
                 return coinType.ethereum;
-            case "bsc":
-                return coinType.smartChain;
-            case "polygon":
-                return coinType.polygon;
-            case "solana":
-                return coinType.solana;
             case "zkevm":
                 return coinType.polygonzkEVM;
             case "zksync":
@@ -204,84 +196,7 @@ export class Wallet {
         return this.HDWallet.createWithMnemonic(mnemonic, passphrase);
     }
 
-    signEthTx = async (tx: TTranx, prvKey: string) => {
-        const _prvKey = prvKey;
-        const _tx = this.txFormat(tx);
-        this.txLogger(tx);
-        const signingInput = this.getEthSigningInput(_tx, _prvKey);
-        const input = TW.Ethereum.Proto.SigningInput.create(signingInput);
-        const encoded = TW.Ethereum.Proto.SigningInput.encode(input).finish();
-        const outputData = this.AnySigner.sign(encoded, this.CoinType.ethereum);
-        const output = TW.Ethereum.Proto.SigningOutput.decode(outputData);
-        return this.HexCoding.encode(output.encoded);
-    };
-
-    getEthSigningInput = (tx: TTranx, prvKey: string): ISigningInput => {
-        const txDataInput = TW.Ethereum.Proto.Transaction.create();
-        let txSignInputData: ISigningInput = {
-            toAddress: tx.toAddress,
-            chainId: hexToBuffer(tx.chainIdHex ?? ""),
-            nonce: hexToBuffer(tx.nonceHex ?? ""),
-            gasPrice: hexToBuffer(tx.gasPriceHex ?? ""),
-            gasLimit: hexToBuffer(tx.gasLimitHex ?? ""),
-            privateKey: this.PrivateKey.createWithData(
-                this.HexCoding.decode(prvKey),
-            ).data(),
-        };
-        if (!tx.isNative) {
-            txDataInput.erc20Transfer =
-                TW.Ethereum.Proto.Transaction.ERC20Transfer.create({
-                    to: tx.toAddress,
-                    amount: hexToBuffer(tx.amountHex ?? ""),
-                });
-            txSignInputData = {
-                ...txSignInputData,
-                toAddress: tx.contractAddress,
-            };
-        } else {
-            txDataInput.transfer = TW.Ethereum.Proto.Transaction.Transfer.create({
-                amount: hexToBuffer(tx.amountHex ?? ""),
-            });
-        }
-        txSignInputData = {
-            ...txSignInputData,
-            transaction: txDataInput,
-        };
-        return txSignInputData;
-    };
-
     txFormat = (tx: TTranx) => {
         return tx;
-    };
-
-    txLogger = (tx: TTranx) => {
-        console.log("gasprice", tx.gasPrice);
-        console.log("gasLimit", tx.gasLimit);
-        console.log("amount", tx.amount);
-        console.log("amountValue", tx.amountValue);
-        console.log("contractDecimals", tx.contractDecimals);
-        console.log("contractAddress", tx.contractAddress);
-        console.log("nonce", tx.nonce);
-        console.log("gaspriceHex", tx.gasPriceHex);
-        console.log("gaspriceValue", tx.gasPriceValue);
-        console.log("gasLimitHex", tx.gasLimitHex);
-        console.log("amountHex", tx.amountHex);
-        console.log("nonceHex", tx.nonceHex);
-        console.log("chainId", tx.chainId);
-        console.log("chainIdHex", tx.chainIdHex);
-        console.log("toAddress", tx.toAddress);
-        console.log("fromAddress", tx.fromAddress);
-        console.log("symbol", tx.symbol);
-        console.log("blockchain", tx.blockchain);
-        console.log("isNative", tx.isNative);
-        console.log("transactionType", tx.transactionType);
-        console.log("data", tx.data);
-        console.log("value", tx.value);
-        console.log("valueHex", tx.valueHex);
-        console.log("nonce Buffer", Buffer.from(tx.nonceHex ?? "", "hex"));
-        console.log("chain id Buffer", Buffer.from("5208" ?? "", "hex"));
-        console.log("amount Buffer", Buffer.from(tx.amountHex ?? "", "hex"));
-        console.log("gasprice Buffer", Buffer.from(tx.gasPriceHex ?? "", "hex"));
-        console.log("gasLimit Buffer", Buffer.from(tx.gasLimitHex ?? "", "hex"));
     };
 }

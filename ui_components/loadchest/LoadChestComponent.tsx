@@ -137,7 +137,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         const _inputValue = inputValue.replace(/[^\d.]/g, "");
         if (_inputValue) {
             setTransactionLoading(true);
-            setChestLoadingText("🔧 Initializing wallet core and creating link...");
+            setChestLoadingText("Initializing wallet and creating link...");
             try {
                 const walletCore = await initWasm();
                 const wallet = new Wallet(walletCore);
@@ -164,13 +164,10 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 const destinationAddress = await safeFactory.predictSafeAddress(
                     safeAccountConfig,
                 );
-                setChestLoadingText("🏦 Safe contract created");
-                console.log(destinationAddress, "destinationAddress");
+                setChestLoadingText("Safe contract created");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    const relayPack = new GelatoRelayPack(
-                        "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
-                    );
+                    const relayPack = new GelatoRelayPack(process.env.GELATO_RELAY_API_KEY);
                     setChestLoadingText(
                         "Initializing account abstraction for transaction relay",
                     );
@@ -178,7 +175,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     const fromSigner = await fromEthProvider.getSigner();
                     const safeAccountAbstraction = new AccountAbstraction(fromSigner);
                     await safeAccountAbstraction.init({ relayPack });
-                    setChestLoadingText("🏁 Transaction process has begun...");
+                    setChestLoadingText("Transaction process has begun...");
                     const safeTransactionData: MetaTransactionData = {
                         to: destinationAddress,
                         data: "0x",
@@ -196,15 +193,10 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                         options,
                     );
                     console.log("gelatoTaskId ", gelatoTaskId);
-                    console.log(
-                        "gelato Task Link ",
-                        "https://relay.gelato.digital/tasks/status/",
-                        gelatoTaskId,
-                    );
-                    console.log("payData.link ", payData.link);
+                    console.log(`https://relay.gelato.digital/tasks/status/${gelatoTaskId}`);
                     if (gelatoTaskId) {
                         setChestLoadingText(
-                            "⏳ Transaction on its way! Awaiting confirmation...",
+                            "Transaction on its way! Awaiting confirmation...",
                         );
                         handleTransactionStatus(gelatoTaskId, payData.link);
                     }
@@ -241,10 +233,10 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                             console.log(res, "res");
                             const task = res.data.task;
                             if (task) {
-                                setChestLoadingText("🔍 Verifying Transaction Status...");
+                                setChestLoadingText("Verifying Transaction Status...");
                                 if (task.taskState === "ExecSuccess") {
                                     setChestLoadingText(
-                                        "🎯 Operation Successful: Transaction Completed!",
+                                        "Operation Successful: Transaction Completed!",
                                     );
                                     router.push(link);
                                     if (interval !== null) {
@@ -489,7 +481,6 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 </div>
             ) : (
                 <div className="w-[full] max-w-[600px] h-full relative flex flex-col text-center items-center gap-5 mx-auto mt-20">
-                    {/* <p className="text-white text-[32px] ">{chestLoadingText}</p> */}
                     <ReactTyped
                         className="text-white text-[24px]"
                         strings={[chestLoadingText]}

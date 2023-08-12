@@ -214,7 +214,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                 BaseGoerli.info.rpc,
             );
             const relayPack = new GelatoRelayPack(
-                "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
+                process.env.GELATO_RELAY_API_KEY,
             );
 
             // from signer address
@@ -257,7 +257,6 @@ const ShareLink: FC<IShareLink> = (props) => {
             getRelayTransactionStatus(hash)
                 .then((res: any) => {
                     if (res) {
-                        console.log(res, "res");
                         const task = res.data.task;
                         if (task) {
                             if (task.taskState === "ExecSuccess") {

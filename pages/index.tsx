@@ -135,12 +135,9 @@ export default function Home() {
 
     const signIn = async () => {
         if (!web3auth) {
-            console.log("web3auth not initialized yet");
             return;
         }
-
         if (web3auth.connected) {
-            console.log("connected");
             return;
         }
         const web3authProvider = await web3auth.connectTo(WALLET_ADAPTERS.OPENLOGIN, {
@@ -148,7 +145,6 @@ export default function Home() {
         });
         setProvider(web3authProvider);
         const acc = (await getAccounts()) as any;
-        console.log(acc, "addresses");
         localStorage.setItem("isConnected", "true");
         localStorage.setItem("isGoogleLogin", "true");
         dispatch({
@@ -165,7 +161,6 @@ export default function Home() {
 
     const getAccounts = async () => {
         if (!provider) {
-            console.log("provider not initialized yet");
             return;
         }
         try {
@@ -189,11 +184,9 @@ export default function Home() {
             owners: [await signer.getAddress()],
             threshold: 1,
         };
-        console.log("deploy safeAccountConfig", safeAccountConfig);
         const safeSdkOwnerPredicted = await safeFactory.predictSafeAddress(
             safeAccountConfig,
         );
-        console.log("deploy safeSdkOwner1", safeSdkOwnerPredicted);
         return safeSdkOwnerPredicted;
     };
 
@@ -263,10 +256,8 @@ export default function Home() {
             await openConnectModal?.();
         } catch (e: any) {
             const err = serializeError(e);
-            console.log(err, "err");
             setConnecting(false);
             toast.error(err.message);
-            console.log(e, "error");
         }
     };
 

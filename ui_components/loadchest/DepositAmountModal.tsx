@@ -87,7 +87,6 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
     };
 
     useEffect(() => {
-        console.log("came to ue");
         if (connecting) {
             handleWalletConnectFlow();
             toast.success("Wallet Connected Successfully");
