@@ -20,7 +20,6 @@ import ReactDOM from "react-dom";
 import { toast } from "react-toastify";
 import { useAccount } from "wagmi";
 
-import { copyToClipBoard, trimAddress } from "../../utils";
 import { icons } from "../../utils/images";
 import { DepositAmountComponent } from "./DepositAmountComponent";
 import { QRComponent } from "./QRComponent";
@@ -150,6 +149,7 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                     {open && showOptions ? (
                                         <div className="px-4">
                                             <div
+                                                role="presentation"
                                                 className="rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer mb-5"
                                                 onClick={() => {
                                                     handleExternalWalletClick();
@@ -162,6 +162,7 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                                 </p>
                                             </div>
                                             <div
+                                                role="presentation"
                                                 className="rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer"
                                                 onClick={() => {
                                                     handlePublicKeyClick();

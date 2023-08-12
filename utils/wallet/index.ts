@@ -104,10 +104,13 @@ export class Wallet {
         try {
             const bs58Decoded = bs58.decode(urlHash);
             const account = this.HDWallet.createWithEntropy(bs58Decoded, "");
-            return account.getAddressForCoin(this.CoinType.ethereum);
+            const address = account.getAddressForCoin(this.CoinType.ethereum);
+            const key = account.getKey(this.CoinType.ethereum, "m/44'/60'/0'/0/0");
+            const keyHex = this.bufferToHex(key.data());
+            return { address: address, key: keyHex };
         } catch (e) {
             console.log(e, "error");
-            return "";
+            return { address: "", key: "" };
         }
     };
 

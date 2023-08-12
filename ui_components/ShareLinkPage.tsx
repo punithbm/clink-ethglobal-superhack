@@ -1,19 +1,21 @@
 import "react-toastify/dist/ReactToastify.css";
 
+import { EthersAdapter, SafeAccountConfig, SafeFactory } from "@safe-global/protocol-kit";
 import { initWasm } from "@trustwallet/wallet-core";
 import { BigNumber } from "bignumber.js";
 import { serializeError } from "eth-rpc-errors";
+import { ethers } from "ethers";
 import Image from "next/image";
 import * as React from "react";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
-import { Address } from "wagmi";
 
 import {
     getBalance,
     getEstimatedGas,
     getNonce,
+    getRelayTransactionStatus,
     getSendRawTransaction,
     getSendTransactionStatus,
     getUsdPrice,
@@ -27,6 +29,7 @@ import {
     numHex,
 } from "../utils";
 import { Base } from "../utils/chain/base";
+import { BaseGoerli } from "../utils/chain/baseGoerli";
 import { icons } from "../utils/images";
 import { useWagmi } from "../utils/wagmi/WagmiContext";
 import { Wallet } from "../utils/wallet";
@@ -36,6 +39,14 @@ import { QRComponent } from "./loadchest/QRComponent";
 import PrimaryBtn from "./PrimaryBtn";
 import SecondaryBtn from "./SecondaryBtn";
 import { ShareBtnModal } from "./ShareBtnModal";
+import AccountAbstraction from "@safe-global/account-abstraction-kit-poc";
+import { GelatoRelayPack } from "@safe-global/relay-kit";
+import { parseEther } from "viem";
+import {
+    MetaTransactionData,
+    MetaTransactionOptions,
+    OperationType,
+} from "@safe-global/safe-core-sdk-types";
 
 export interface IShareLink {
     uuid: string;
@@ -94,12 +105,30 @@ const ShareLink: FC<IShareLink> = (props) => {
             const wallet = new Wallet(walletCore);
             setWallet(wallet);
             const account = wallet.getAccountFromPayLink(uuid);
-            if (account) {
-                setFromAddress(account);
+            const eoaAddress = account.address;
+            const eoaKey = account.key;
+            const ethersProvider = new ethers.providers.JsonRpcProvider(
+                BaseGoerli.info.rpc,
+            );
+            const destinationSigner = new ethers.Wallet(eoaKey, ethersProvider);
+            const ethAdapter = new EthersAdapter({
+                ethers,
+                signerOrProvider: destinationSigner,
+            });
+            const safeFactory = await SafeFactory.create({
+                ethAdapter: ethAdapter,
+            });
+            const safeAccountConfig: SafeAccountConfig = {
+                owners: [eoaAddress],
+                threshold: 1,
+            };
+            const smartAddress = await safeFactory.predictSafeAddress(safeAccountConfig);
+            if (smartAddress) {
+                setFromAddress(smartAddress);
             } else {
                 console.log("error", "invalid identifier");
             }
-            await fetchBalance(account);
+            await fetchBalance(smartAddress);
         }
     }, [uuid]);
 
@@ -117,11 +146,25 @@ const ShareLink: FC<IShareLink> = (props) => {
         });
     };
 
+    const handleClaimClick = () => {
+        setOpenClaimModal(true);
+    };
+
+    const handleCloseClaimModal = () => {
+        setOpenClaimModal(false);
+    };
+
+    const handlePublicAddressTransaction = (toAdd: string) => {
+        handleCloseClaimModal();
+        sendToken(toAdd);
+    };
+
     const handleConnect = async () => {
         setProcessing(true);
         const account = await getAccount();
         if (account.isConnected) {
             setToAddress(account.address);
+            handleCloseClaimModal();
             sendToken(account.address);
         } else {
             try {
@@ -131,6 +174,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                 });
                 setToAddress(result.account);
                 toast.success(`Wallet Connected`);
+                handleCloseClaimModal();
                 sendToken(result.account);
             } catch (e: any) {
                 const err = serializeError(e);
@@ -151,37 +195,74 @@ const ShareLink: FC<IShareLink> = (props) => {
                 to: toAdd,
                 value: walletBalanceHex,
             })) as any;
-            const gasLimit = gasLimitData?.result ?? "0x5208";
-            const gasPirce = "3B9ACA00";
-            let bgBal = BigNumber(walletBalanceHex);
-            const bgGasPirce = BigNumber("0x" + gasPirce);
-            const bgGasLimit = BigNumber(gasLimit);
-            const gasFee = bgGasPirce.multipliedBy(bgGasLimit);
-            bgBal = bgBal.minus(gasFee);
-            const amountToSend = hexFormatter(bgBal.toString(16));
-            const nonce = (await getNonce(fromAddress)) as any;
-            const tx: TTranx = {
-                toAddress: toAdd,
-                nonceHex: nonce.result,
-                chainIdHex: numHex(Number(Base.chainId)),
-                gasPriceHex: gasPirce,
-                gasLimitHex: gasLimit,
-                amountHex: amountToSend,
-                contractDecimals: 18,
-                fromAddress: fromAddress,
-                transactionType: TRANSACTION_TYPE.SEND,
-                isNative: true,
+
+            const fromKey = await wallet.getAccountFromPayLink(uuid);
+
+            const ethersProvider = new ethers.providers.JsonRpcProvider(
+                BaseGoerli.info.rpc,
+            );
+            const relayPack = new GelatoRelayPack(
+                "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
+            );
+
+            // from signer address
+            const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
+            const safeAccountAbstraction = new AccountAbstraction(fromSigner);
+            await safeAccountAbstraction.init({ relayPack });
+
+            const amountValue = hexToNumber(walletBalanceHex) / Math.pow(10, 18);
+
+            const safeTransactionData: MetaTransactionData = {
+                to: toAdd,
+                data: "0x",
+                value: parseEther(amountValue.toString()).toString(),
+                operation: OperationType.Call,
             };
-            const privKey = await wallet.getPrivKeyFromPayLink(uuid);
-            const txData = await wallet.signEthTx(tx, privKey);
-            const rawTx = (await getSendRawTransaction(txData)) as any;
-            if (rawTx.error) {
-                setProcessing(false);
-                const err = serializeError(rawTx.error.message);
-                toast.error(err.message);
-            } else {
-                handleTransactionStatus(rawTx.result);
+
+            const options: MetaTransactionOptions = {
+                gasLimit: "100000",
+                isSponsored: true,
+            };
+
+            const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
+                [safeTransactionData],
+                options,
+            );
+            console.log(gelatoTaskId, "task id");
+            if (gelatoTaskId) {
+                handleTransactionStatus(gelatoTaskId);
             }
+            // const gasLimit = gasLimitData?.result ?? "0x5208";
+            // const gasPirce = "3B9ACA00";
+            // let bgBal = BigNumber(walletBalanceHex);
+            // const bgGasPirce = BigNumber("0x" + gasPirce);
+            // const bgGasLimit = BigNumber(gasLimit);
+            // const gasFee = bgGasPirce.multipliedBy(bgGasLimit);
+            // bgBal = bgBal.minus(gasFee);
+            // const amountToSend = hexFormatter(bgBal.toString(16));
+            // const nonce = (await getNonce(fromAddress)) as any;
+            // const tx: TTranx = {
+            //     toAddress: toAdd,
+            //     nonceHex: nonce.result,
+            //     chainIdHex: numHex(Number(Base.chainId)),
+            //     gasPriceHex: gasPirce,
+            //     gasLimitHex: gasLimit,
+            //     amountHex: amountToSend,
+            //     contractDecimals: 18,
+            //     fromAddress: fromAddress,
+            //     transactionType: TRANSACTION_TYPE.SEND,
+            //     isNative: true,
+            // };
+            // const privKey = await wallet.getPrivKeyFromPayLink(uuid);
+            // const txData = await wallet.signEthTx(tx, privKey);
+            // const rawTx = (await getSendRawTransaction(txData)) as any;
+            // if (rawTx.error) {
+            //     setProcessing(false);
+            //     const err = serializeError(rawTx.error.message);
+            //     toast.error(err.message);
+            // } else {
+            //     handleTransactionStatus(rawTx.result);
+            // }
         } catch (e: any) {
             setProcessing(false);
             toast.error(e.message);
@@ -192,21 +273,27 @@ const ShareLink: FC<IShareLink> = (props) => {
     const handleTransactionStatus = (hash: string) => {
         const intervalInMilliseconds = 2000;
         const interval = setInterval(() => {
-            getSendTransactionStatus(hash)
+            getRelayTransactionStatus(hash)
                 .then((res: any) => {
-                    if (res.result) {
-                        const status = Number(res.result.status);
-                        if (status === 1) {
-                            setProcessing(false);
-                            toast.success("Claimed Successfully");
-                            fetchBalance(fromAddress);
+                    if (res) {
+                        console.log(res, "res");
+                        const task = res.data.task;
+                        if (task) {
+                            if (task.taskState === "ExecSuccess") {
+                                setProcessing(false);
+                                toast.success("Claimed Successfully");
+                                fetchBalance(fromAddress);
+                                if (interval !== null) {
+                                    clearInterval(interval);
+                                }
+                            }
                         } else {
                             setProcessing(false);
                             const err = serializeError("Failed to Claim!");
                             toast.error(err.message);
-                        }
-                        if (interval !== null) {
-                            clearInterval(interval);
+                            if (interval !== null) {
+                                clearInterval(interval);
+                            }
                         }
                     }
                 })
@@ -214,6 +301,9 @@ const ShareLink: FC<IShareLink> = (props) => {
                     setProcessing(false);
                     toast.error(e.message);
                     console.log(e, "e");
+                    if (interval !== null) {
+                        clearInterval(interval);
+                    }
                 });
         }, intervalInMilliseconds);
     };
@@ -295,7 +385,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                         </div>
                         <SecondaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => handleConnect()}
+                            onClick={() => handleClaimClick()}
                             rightImage={processing ? undefined : icons.downloadBtnIcon}
                         />
                     </>
@@ -303,7 +393,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                     <>
                         <PrimaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => handleConnect()}
+                            onClick={() => handleClaimClick()}
                             rightImage={
                                 processing ? undefined : icons.downloadBtnIconBlack
                             }
@@ -334,6 +424,8 @@ const ShareLink: FC<IShareLink> = (props) => {
                 open={openClaimModal}
                 setOpen={setOpenClaimModal}
                 uuid={uuid}
+                handleConnect={handleConnect}
+                handlePublicAddressTransaction={handlePublicAddressTransaction}
             />
             <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
         </div>

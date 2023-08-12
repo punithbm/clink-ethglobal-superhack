@@ -30,6 +30,7 @@ import { ACTIONS, GlobalContext } from "../context/GlobalContext";
 import { getStore } from "../store/GlobalStore";
 import BottomSheet from "../ui_components/bottom-sheet";
 import ConnectWallet from "../ui_components/connect_wallet/";
+import Footer from "../ui_components/footer";
 import Header from "../ui_components/header";
 import HomePage from "../ui_components/home/HomePage";
 import { LoadChestComponent } from "../ui_components/loadchest/LoadChestComponent";
@@ -83,7 +84,7 @@ export default function Home() {
 
             const web3auth = new Web3AuthNoModal({
                 clientId: web3AuthClientId,
-                web3AuthNetwork: "mainnet",
+                web3AuthNetwork: "testnet",
                 chainConfig: chainConfig,
             });
 
@@ -220,7 +221,6 @@ export default function Home() {
             signerOrProvider: signer || ethProvider,
         });
         const safeFactory = await SafeFactory.create({ ethAdapter: ethAdapter });
-        const address = signer.getAddress() as unknown as string;
         const safeAccountConfig: SafeAccountConfig = {
             owners: [await signer.getAddress()],
             threshold: 1,
@@ -378,6 +378,7 @@ export default function Home() {
                     signIn={signIn}
                     handleSteps={handleSteps}
                 />
+                <Footer />
             </div>
         </>
     );

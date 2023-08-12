@@ -1,14 +1,13 @@
 import "react-toastify/dist/ReactToastify.css";
 
 import AccountAbstraction from "@safe-global/account-abstraction-kit-poc";
-import Safe, { EthersAdapter, getSafeContract } from "@safe-global/protocol-kit";
+import { EthersAdapter } from "@safe-global/protocol-kit";
 import { SafeAccountConfig, SafeFactory } from "@safe-global/protocol-kit";
 import { GelatoRelayPack } from "@safe-global/relay-kit";
 import {
     MetaTransactionData,
     MetaTransactionOptions,
     OperationType,
-    RelayTransaction,
 } from "@safe-global/safe-core-sdk-types";
 import { initWasm } from "@trustwallet/wallet-core";
 import { serializeError } from "eth-rpc-errors";
@@ -16,32 +15,34 @@ import { ethers } from "ethers";
 import Lottie from "lottie-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { FC, MouseEvent, useContext, useEffect, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { parseEther } from "viem";
 
-import { getBalance, getSendTransactionStatus, getUsdPrice } from "../../apiServices";
+import {
+    getBalance,
+    getRelayTransactionStatus,
+    getSendTransactionStatus,
+    getUsdPrice,
+} from "../../apiServices";
 import { GlobalContext } from "../../context/GlobalContext";
-import { ESTEPS, LOGGED_IN, THandleStep } from "../../pages";
+import { LOGGED_IN, THandleStep } from "../../pages";
 import * as loaderAnimation from "../../public/lottie/loader.json";
 import {
     getCurrencyFormattedNumber,
     getTokenFormattedNumber,
     getTokenValueFormatted,
     hexToNumber,
-    numHex,
 } from "../../utils";
-import { Base } from "../../utils/chain/base";
+import { BaseGoerli } from "../../utils/chain/baseGoerli";
 import { icons } from "../../utils/images";
-import { useWagmi } from "../../utils/wagmi/WagmiContext";
 import { Wallet } from "../../utils/wallet";
-import { TRANSACTION_TYPE, TTranx } from "../../utils/wallet/types";
-import BackBtn from "../BackBtn";
 import PrimaryBtn from "../PrimaryBtn";
 import SecondaryBtn from "../SecondaryBtn";
 import DepositAmountModal from "./DepositAmountModal";
 import { ProfileCard } from "./ProfileCard";
+import { useWagmi } from "../../utils/wagmi/WagmiContext";
 
 export interface ILoadChestComponent extends THandleStep {
     openLogin?: any;
@@ -52,7 +53,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const { openLogin, handleSteps, safeLogin, provider } = props;
 
     const {
-        state: { loggedInVia, address, googleUserInfo, isConnected },
+        state: { loggedInVia, address },
     } = useContext(GlobalContext);
 
     const router = useRouter();
@@ -74,7 +75,8 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const handleToggle = () => {
         setToggle(!toggle);
     };
-    const [balLoading, setBalLoading] = useState(false);
+
+    const { sendTransaction } = useWagmi();
 
     useEffect(() => {
         if (address) {
@@ -135,8 +137,6 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         return Number(val) / Number(tokenPrice);
     };
 
-    const { sendTransaction } = useWagmi();
-
     function removeLeadingZeros(value: string): string {
         // Check if the input value is empty or null
         if (!value || value.length === 0) {
@@ -161,121 +161,78 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 const walletCore = await initWasm();
                 const wallet = new Wallet(walletCore);
                 const payData = await wallet.createPayLink();
-                const toAddress = payData.address;
-                const tokenAmount = Number(_inputValue) * Math.pow(10, 18);
                 const ethersProvider = new ethers.providers.JsonRpcProvider(
-                    "https://goerli.base.org",
+                    BaseGoerli.info.rpc,
                 );
-                const signer = new ethers.Wallet(payData.key, ethersProvider);
+                const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
+                const destinationEOAAddress = await destinationSigner.getAddress();
                 const ethAdapter = new EthersAdapter({
                     ethers,
-                    signerOrProvider: signer,
+                    signerOrProvider: destinationSigner,
                 });
-
                 const safeFactory = await SafeFactory.create({
                     ethAdapter: ethAdapter,
                 });
-                const destinationAddress = await signer.getAddress();
                 const safeAccountConfig: SafeAccountConfig = {
-                    owners: [destinationAddress],
+                    owners: [destinationEOAAddress],
                     threshold: 1,
                 };
-                const relayPack = new GelatoRelayPack(
-                    "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
-                );
-                const safeAccountAbstraction = new AccountAbstraction(signer);
-                await safeAccountAbstraction.init({ relayPack });
-
-                const addPredicted = await safeFactory.predictSafeAddress(
+                const destinationAddress = await safeFactory.predictSafeAddress(
                     safeAccountConfig,
                 );
-                console.log(addPredicted, "addPredicted");
-                console.log(
-                    parseEther(inputValue).toString(),
-                    "parseEther(inputValue).toString()",
-                );
-                console.log(
-                    "process.env.GELATO_RELAY_API_KEY ",
-                    "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
-                );
-                const amountParsed = numHex(Number(parseEther(_inputValue)));
-                const safeTransactionData: MetaTransactionData = {
-                    to: destinationAddress,
-                    data: "0x",
-                    value: parseEther(inputValue).toString(),
-                    operation: OperationType.Call,
-                };
-                const options: MetaTransactionOptions = {
-                    gasLimit: "100000",
-                    isSponsored: true,
-                };
+                console.log(destinationAddress, "destinationAddress");
 
-                const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
-                    [safeTransactionData],
-                    options,
-                );
+                if (loggedInVia === LOGGED_IN.GOOGLE) {
+                    const relayPack = new GelatoRelayPack(
+                        "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
+                    );
 
-                console.log("gelatoTaskId ", gelatoTaskId);
+                    const fromEthProvider = new ethers.providers.Web3Provider(provider);
+                    const fromSigner = await fromEthProvider.getSigner();
+                    const safeAccountAbstraction = new AccountAbstraction(fromSigner);
+                    await safeAccountAbstraction.init({ relayPack });
 
-                handleTransactionStatus(gelatoTaskId, payData.link);
+                    const safeTransactionData: MetaTransactionData = {
+                        to: destinationAddress,
+                        data: "0x",
+                        value: parseEther(inputValue).toString(),
+                        operation: OperationType.Call,
+                    };
 
-                // if (loggedInVia === LOGGED_IN.GOOGLE) {
-                //     try {
-                //         let valueHex = String(nonStrtZero);
+                    const options: MetaTransactionOptions = {
+                        gasLimit: "100000",
+                        isSponsored: true,
+                    };
 
-                //         if (!valueHex.startsWith("0x")) {
-                //             valueHex = "0x" + valueHex;
-                //         }
+                    const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
+                        [safeTransactionData],
+                        options,
+                    );
 
-                //         const gasLimitData = (await getEstimatedGas({
-                //             from: fromAddress,
-                //             to: toAddress,
-                //             value: valueHex,
-                //         })) as any;
-
-                //         const nonce = (await getNonce(fromAddress)) as any;
-
-                //         const tx: TTranx = {
-                //             toAddress: toAddress,
-                //             nonceHex: nonce.result,
-                //             chainIdHex: numHex(Number(Base.chainId)),
-                //             // gas price is hardcoded to pass 1 by default as of now
-                //             gasPriceHex: "3B9ACA00" ?? "0x1",
-                //             gasLimitHex: gasLimitData.result,
-                //             amountHex: numHex(tokenAmount),
-                //             contractDecimals: 18,
-                //             fromAddress: fromAddress,
-                //             transactionType: TRANSACTION_TYPE.SEND,
-                //             isNative: true,
-                //         };
-
-                //         const prvKey = (await provider.request({
-                //             method: "private_key",
-                //         })) as string;
-                //         console.log("prvKey ", prvKey);
-                //         const txData = await wallet.signEthTx(tx, prvKey);
-                //         const rawTx = (await getSendRawTransaction(txData)) as any;
-                //         handleTransactionStatus(rawTx.result, payData.link);
-                //     } catch (e: any) {
-                //         setTransactionLoading(false);
-                //         const err = serializeError(e);
-                //         toast.error(err.message);
-                //         console.log(e, "error");
-                //     }
-                // } else {
-                //     try {
-                //         const sendAmount = await sendTransaction({
-                //             to: toAddress,
-                //             value: parseEther(inputValue),
-                //         });
-                //         handleTransactionStatus(sendAmount.hash, payData.link);
-                //     } catch (e: any) {
-                //         setTransactionLoading(false);
-                //         const err = serializeError(e);
-                //         toast.error(err.message);
-                //         console.log(e, "error");
-                //     }
-                // }
+                    console.log("gelatoTaskId ", gelatoTaskId);
+                    console.log(
+                        "gelato Task Link ",
+                        "https://relay.gelato.digital/tasks/status/",
+                        gelatoTaskId,
+                    );
+                    console.log("payData.link ", payData.link);
+                    if (gelatoTaskId) {
+                        handleTransactionStatus(gelatoTaskId, payData.link);
+                    }
+                } else {
+                    try {
+                        const sendAmount = await sendTransaction({
+                            to: destinationAddress,
+                            value: parseEther(inputValue),
+                        });
+                        handleTransactionStatus(sendAmount.hash, payData.link);
+                    } catch (e: any) {
+                        setTransactionLoading(false);
+                        const err = serializeError(e);
+                        toast.error(err.message);
+                        console.log(e, "error");
+                    }
+                }
             } catch (e: any) {
                 setTransactionLoading(false);
                 const err = serializeError(e);
@@ -288,20 +245,64 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const handleTransactionStatus = (hash: string, link: string) => {
         const intervalInMilliseconds = 2000;
         const interval = setInterval(() => {
-            getSendTransactionStatus(hash).then((res: any) => {
-                if (res.result) {
-                    const status = Number(res.result.status);
-                    if (status === 1) {
-                        router.push(link);
-                    } else {
+            if (loggedInVia === LOGGED_IN.GOOGLE) {
+                getRelayTransactionStatus(hash)
+                    .then((res: any) => {
+                        if (res) {
+                            console.log(res, "res");
+                            const task = res.data.task;
+                            if (task) {
+                                if (task.taskState === "ExecSuccess") {
+                                    router.push(link);
+                                    if (interval !== null) {
+                                        clearInterval(interval);
+                                    }
+                                }
+                            } else {
+                                setTransactionLoading(false);
+                                toast.error("Failed to Load Chest. Try Again");
+                                if (interval !== null) {
+                                    clearInterval(interval);
+                                }
+                            }
+                        }
+                    })
+                    .catch((e) => {
                         setTransactionLoading(false);
-                        toast.error("Failed to Load Chest. Try Again");
-                    }
-                    if (interval !== null) {
-                        clearInterval(interval);
-                    }
-                }
-            });
+                        toast.error(e.message);
+                        console.log(e, "e");
+                        if (interval !== null) {
+                            clearInterval(interval);
+                        }
+                    });
+            } else {
+                getSendTransactionStatus(hash)
+                    .then((res: any) => {
+                        if (res.result) {
+                            const status = Number(res.result.status);
+                            if (status === 1) {
+                                router.push(link);
+                                if (interval !== null) {
+                                    clearInterval(interval);
+                                }
+                            } else {
+                                setTransactionLoading(false);
+                                toast.error("Failed to Load Chest. Try Again");
+                                if (interval !== null) {
+                                    clearInterval(interval);
+                                }
+                            }
+                        }
+                    })
+                    .catch((e) => {
+                        setTransactionLoading(false);
+                        toast.error(e.message);
+                        console.log(e, "e");
+                        if (interval !== null) {
+                            clearInterval(interval);
+                        }
+                    });
+            }
         }, intervalInMilliseconds);
     };
 

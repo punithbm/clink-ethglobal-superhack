@@ -1,4 +1,4 @@
-import { globalApiService } from "../utils/globalApiServices";
+import { getApiService, globalApiService } from "../utils/globalApiServices";
 import axiosInstance from "../utils/httpInterceptor";
 
 enum ETHEREUM_REQUESTS {
@@ -70,6 +70,18 @@ export const getSendRawTransaction = async (tx: string) => {
 export const getSendTransactionStatus = async (hash: string) => {
     return new Promise(function (resolve, reject) {
         globalApiService(ETHEREUM_REQUESTS.ethTransactionStatus, [hash])
+            .then((response) => {
+                resolve(response);
+            })
+            .catch((e) => reject(e));
+    });
+};
+
+export const getRelayTransactionStatus = async (taskId: string) => {
+    return new Promise(function (resolve, reject) {
+        getApiService({
+            url: `https://relay.gelato.digital/tasks/status/${taskId}`,
+        })
             .then((response) => {
                 resolve(response);
             })

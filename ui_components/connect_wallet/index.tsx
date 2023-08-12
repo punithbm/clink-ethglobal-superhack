@@ -1,4 +1,3 @@
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
 import * as React from "react";
 
@@ -13,16 +12,16 @@ interface IConnectWallet extends THandleStep {
 }
 
 export default function ConnectWallet(props: IConnectWallet) {
-    const { signIn, handleSteps, connectWallet, connecting } = props;
+    const { signIn, connectWallet, connecting } = props;
     return (
         <>
-            <div className="w-full relative pt-[100px] lg:pt-10">
+            <div className="w-full relative lg:pt-10">
                 <div className="w-full text-center p-2 relative">
-                    <div className="mb-[70px] lg:mb-5">
+                    <div className="mb-[30px] lg:mb-5">
                         <p className="text-sm md:text-lg font-bold leading-1 text-white/50 mb-6 md:mb-10">
                             STEP 1
                         </p>
-                        <p className="text-lg md:text-xl font-bold leading-1 text-white mb-3 md:mb-10">
+                        <p className="text-lg md:text-xl font-bold leading-1 text-white mb-3 md:mb-5 lg:mb-10">
                             Connect your wallet
                         </p>
                         <p className="text-sm md:text-lg font-regular leading-1 md:leading-[32px] text-white/50 md:mb-10">
@@ -31,7 +30,7 @@ export default function ConnectWallet(props: IConnectWallet) {
                         </p>
                     </div>
                     <Image
-                        className="m-auto mb-[70px] lg:mb-5"
+                        className="m-auto mb-[30px] lg:mb-5"
                         src={icons.tchest}
                         alt="Chest"
                     />
@@ -65,11 +64,6 @@ export default function ConnectWallet(props: IConnectWallet) {
                         </button>
                     </div>
                 </div>
-            </div>
-            <div className="flex gap-2 justify-center items-center fixed bottom-4 left-1/2 -translate-x-1/2">
-                <p className="text-[12px] text-white">Built on:</p>
-                <Image src={icons.baseLogo} alt="built on base" />
-                <p className="text-[14px] font-medium text-white">Base Görli</p>
             </div>
         </>
     );
