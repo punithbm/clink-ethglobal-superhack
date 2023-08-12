@@ -167,7 +167,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 setChestLoadingText("Safe contract created");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    const relayPack = new GelatoRelayPack(process.env.NEXT_GELATO_RELAY_API_KEY);
+                    const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
                     setChestLoadingText(
                         "Initializing account abstraction for transaction relay",
                     );
@@ -322,7 +322,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                             <div className="rounded-lg border border-white/40 bg-white/5 ">
                                 <div className="flex items-center justify-between py-2 px-4">
                                     <div>
-                                        <p className="text-white/40 paragraph">
+                                        <p className="text-[#798593] paragraph">
                                             YOUR BALANCE
                                         </p>
                                         <div className="flex items-start gap-3 my-2">
@@ -466,7 +466,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                                         btnDisable={btnDisable || !value}
                                     />
                                     <SecondaryBtn
-                                        className={`w-[45%] lg:w-[185px] max-w-[185px] mx-0 ${
+                                        className={`w-[45%] lg:w-[185px] text-[#CEDDE0] max-w-[185px] mx-0 ${
                                             btnDisable || !value
                                                 ? "cursor-not-allowed"
                                                 : ""
@@ -484,8 +484,8 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     <ReactTyped
                         className="text-white text-[24px]"
                         strings={[chestLoadingText]}
-                        typeSpeed={30}
-                        loop
+                        typeSpeed={40}
+                        loop={false}
                     />
                     <Lottie animationData={loaderAnimation} />
                 </div>

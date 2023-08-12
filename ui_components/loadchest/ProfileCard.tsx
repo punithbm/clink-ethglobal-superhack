@@ -8,6 +8,7 @@ import { GlobalContext } from "../../context/GlobalContext";
 import { trimAddress } from "../../utils";
 import { icons } from "../../utils/images";
 import QrModal from "../QrModal";
+import "tailwindcss/tailwind.css";
 
 export interface IProfileCard {
     profileImage?: string;

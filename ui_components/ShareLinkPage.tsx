@@ -19,6 +19,7 @@ import { FC, useContext, useEffect, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
 import { parseEther } from "viem";
+import "tailwindcss/tailwind.css";
 
 import {
     getBalance,
@@ -213,7 +214,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             const ethersProvider = new ethers.providers.JsonRpcProvider(
                 BaseGoerli.info.rpc,
             );
-            const relayPack = new GelatoRelayPack(process.env.NEXT_GELATO_RELAY_API_KEY);
+            const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
 
             // from signer address
             const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
