@@ -1,3 +1,6 @@
+import bs58 from "bs58";
+import crypto from "crypto";
+
 import { ACTIONS, GlobalContext } from "../context/GlobalContext";
 import { getStore } from "../store/GlobalStore";
 
@@ -176,4 +179,23 @@ export const getExponentialFixedNumber = (num: number) => {
 
 export const copyToClipBoard = (val: string) => {
     navigator.clipboard.writeText(`https://blocktheory.com/blog/${val}`);
+};
+
+export const encryptAndEncodeHexStrings = (hexString1: string, hexString2: string) => {
+    let concatenatedString = hexString1 + "0x" + hexString2;
+    concatenatedString = Buffer.from(concatenatedString).toString("base64");
+    const iv = crypto.randomBytes(16);
+
+    const cipher = crypto.createCipheriv(
+        "aes-128-cbc",
+        Buffer.from("8f2e9a6b3d5c1f7e"),
+        iv,
+    );
+    const encryptedData = Buffer.concat([
+        cipher.update(concatenatedString),
+        cipher.final(),
+    ]);
+
+    const encodedData = bs58.encode(Buffer.from(concatenatedString));
+    return encodedData;
 };

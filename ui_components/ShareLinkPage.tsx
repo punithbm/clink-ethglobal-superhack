@@ -31,6 +31,7 @@ import {
 } from "../apiServices";
 import { GlobalContext } from "../context/GlobalContext";
 import {
+    encryptAndEncodeHexStrings,
     getCurrencyFormattedNumber,
     getTokenValueFormatted,
     hexFormatter,
@@ -44,6 +45,7 @@ import { useWagmi } from "../utils/wagmi/WagmiContext";
 import { Wallet } from "../utils/wallet";
 import { TRANSACTION_TYPE, TTranx } from "../utils/wallet/types";
 import ClaimBtnModal from "./ClaimBtnModal";
+import Footer from "./footer";
 import { QRComponent } from "./loadchest/QRComponent";
 import PrimaryBtn from "./PrimaryBtn";
 import QrModal from "./QrModal";
@@ -120,7 +122,6 @@ const ShareLink: FC<IShareLink> = (props) => {
             const ethersProvider = new ethers.providers.JsonRpcProvider(
                 BaseGoerli.info.rpc,
             );
-            // const destinationSigner = new ethers.Wallet(eoaKey, ethersProvider);
             const destinationSigner = new ethers.Wallet(eoaKey, ethersProvider);
             const ethAdapter = new EthersAdapter({
                 ethers,
@@ -436,6 +437,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             />
             <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
             <QrModal open={showQr} setOpen={setShowQr} value={fromAddress} />
+            <Footer />
         </div>
     );
 };

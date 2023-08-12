@@ -86,7 +86,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                     />
                                                 </div>
                                             )}
-                                            <p className="text-center text-white text-[24px] mb-5">
+                                            <p className="text-center text-white text-[16px] mb-5">
                                                 {openInput
                                                     ? "Enter Public Address"
                                                     : "💰 Claim"}

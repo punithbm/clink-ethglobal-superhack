@@ -35,13 +35,13 @@ export default function ConnectWallet(props: IConnectWallet) {
                         alt="Chest"
                     />
 
-                    <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] h-[64px] mx-auto rounded-lg mb-6 lg:mb-4">
+                    {/* <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] h-[64px] mx-auto rounded-lg mb-6 lg:mb-4">
                         <SecondaryBtn
                             leftImage={icons.walletIcon ?? ""}
                             title={connecting ? "Connecting..." : "Connect your wallet"}
                             onClick={connectWallet}
                         />
-                    </div>
+                    </div> */}
                     <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg mt-10">
                         <button
                             className={`py-4 w-full rounded-lg bg-white flex gap-2 items-center justify-center max-w-[400px]`}
