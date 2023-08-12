@@ -77,7 +77,7 @@ export const QRComponent: FC<IQRComponent> = (props) => {
         width: widthPx,
         height: heightPx,
         type: "svg",
-        image: icons.logo.src,
+        // image: icons.logo.src,
         margin: 5,
         qrOptions: {
             typeNumber: 0,
@@ -88,12 +88,12 @@ export const QRComponent: FC<IQRComponent> = (props) => {
             type: "extra-rounded",
             color: "#FFFFFF",
         },
-        imageOptions: {
-            hideBackgroundDots: true,
-            imageSize: 0.5,
-            margin: 15,
-            crossOrigin: "anonymous",
-        },
+        // imageOptions: {
+        //     hideBackgroundDots: true,
+        //     imageSize: 0.5,
+        //     margin: 5,
+        //     crossOrigin: "anonymous",
+        // },
         backgroundOptions: {
             color: "#2B2D30",
         },
@@ -124,7 +124,7 @@ export const QRComponent: FC<IQRComponent> = (props) => {
         <div>
             <p className="text-white text-[20px] text-center m-2">
                 {!isShareQr
-                    ? "You can deposit crypto into your account via this public key:"
+                    ? "You can deposit crypto into your account via address"
                     : null}
             </p>
             <div className="flex items-center justify-center" ref={ref} />
@@ -138,15 +138,15 @@ export const QRComponent: FC<IQRComponent> = (props) => {
                             </div>
                             <button className="ml-1 w-6 h-6" onClick={() => handleCopy()}>
                                 <Image
-                                    src={icons.copyBlack}
+                                    src={icons.copyIconWhite}
                                     alt="copyIcon"
-                                    className="w-full h-full"
+                                    className="w-4 h-full"
                                 />
                             </button>
                         </div>
                     </div>
                     {showcopyText && (
-                        <p className="text-black text-[14px] text-center mt-2">Copied!</p>
+                        <p className="text-white text-[14px] text-center mt-2">Copied!</p>
                     )}
                 </div>
             ) : null}

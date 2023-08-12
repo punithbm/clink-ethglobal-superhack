@@ -144,7 +144,7 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             >
                                 <Dialog.Panel
-                                    className={`bg-black lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
+                                    className={`bg-lightGray lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
                                 >
                                     {open && showOptions ? (
                                         <div className="px-4">
@@ -158,7 +158,7 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                                 <p className="text-center text-white">
                                                     {connecting
                                                         ? "Connecting..."
-                                                        : "External Wallet"}
+                                                        : "🔗 External Wallet"}
                                                 </p>
                                             </div>
                                             <div
@@ -169,7 +169,7 @@ export const DepositAmountModal: FC<IDepositAmountModal> = (props) => {
                                                 }}
                                             >
                                                 <p className="text-center text-white">
-                                                    Public Key
+                                                    #️⃣ Public Address
                                                 </p>
                                             </div>
                                         </div>

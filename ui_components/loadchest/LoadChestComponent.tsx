@@ -43,14 +43,13 @@ import SecondaryBtn from "../SecondaryBtn";
 import DepositAmountModal from "./DepositAmountModal";
 import { ProfileCard } from "./ProfileCard";
 import { useWagmi } from "../../utils/wagmi/WagmiContext";
+import ReactTyped from "react-typed";
 
-export interface ILoadChestComponent extends THandleStep {
-    openLogin?: any;
-    safeLogin?: any;
+export interface ILoadChestComponent {
     provider?: any;
 }
 export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
-    const { openLogin, handleSteps, safeLogin, provider } = props;
+    const { provider } = props;
 
     const {
         state: { loggedInVia, address },
@@ -71,6 +70,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const [btnDisable, setBtnDisable] = useState(true);
     const [balanceInUsd, setBalanceInUsd] = useState("");
     const [showActivity, setShowActivity] = useState(false);
+    const [chestLoadingText, setChestLoadingText] = useState("");
 
     const handleToggle = () => {
         setToggle(!toggle);
@@ -133,34 +133,17 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         }
     };
 
-    const dollorToToken = (val: string) => {
-        return Number(val) / Number(tokenPrice);
-    };
-
-    function removeLeadingZeros(value: string): string {
-        // Check if the input value is empty or null
-        if (!value || value.length === 0) {
-            return value;
-        }
-
-        // Find the index of the first non-zero digit
-        let nonZeroIndex = 0;
-        while (value[nonZeroIndex] === "0" && nonZeroIndex < value.length - 1) {
-            nonZeroIndex++;
-        }
-
-        // Remove leading zeros and return the result
-        return value.substring(nonZeroIndex);
-    }
-
     const createWallet = async () => {
         const _inputValue = inputValue.replace(/[^\d.]/g, "");
         if (_inputValue) {
             setTransactionLoading(true);
+            setChestLoadingText("🔧 Initializing wallet core and creating link...");
             try {
                 const walletCore = await initWasm();
                 const wallet = new Wallet(walletCore);
                 const payData = await wallet.createPayLink();
+
+                setChestLoadingText("Setting up destination signer and address");
                 const ethersProvider = new ethers.providers.JsonRpcProvider(
                     BaseGoerli.info.rpc,
                 );
@@ -170,6 +153,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     ethers,
                     signerOrProvider: destinationSigner,
                 });
+                setChestLoadingText("Creating safe contract for chest");
                 const safeFactory = await SafeFactory.create({
                     ethAdapter: ethAdapter,
                 });
@@ -180,18 +164,21 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 const destinationAddress = await safeFactory.predictSafeAddress(
                     safeAccountConfig,
                 );
+                setChestLoadingText("🏦 Safe contract created");
                 console.log(destinationAddress, "destinationAddress");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
                     const relayPack = new GelatoRelayPack(
                         "qbec0fcMKxOAXM0qyxL6cDMX_aaJUmSPPAJUIEg17kU_",
                     );
-
+                    setChestLoadingText(
+                        "Initializing account abstraction for transaction relay",
+                    );
                     const fromEthProvider = new ethers.providers.Web3Provider(provider);
                     const fromSigner = await fromEthProvider.getSigner();
                     const safeAccountAbstraction = new AccountAbstraction(fromSigner);
                     await safeAccountAbstraction.init({ relayPack });
-
+                    setChestLoadingText("🏁 Transaction process has begun...");
                     const safeTransactionData: MetaTransactionData = {
                         to: destinationAddress,
                         data: "0x",
@@ -208,7 +195,6 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                         [safeTransactionData],
                         options,
                     );
-
                     console.log("gelatoTaskId ", gelatoTaskId);
                     console.log(
                         "gelato Task Link ",
@@ -217,6 +203,9 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     );
                     console.log("payData.link ", payData.link);
                     if (gelatoTaskId) {
+                        setChestLoadingText(
+                            "⏳ Transaction on its way! Awaiting confirmation...",
+                        );
                         handleTransactionStatus(gelatoTaskId, payData.link);
                     }
                 } else {
@@ -252,7 +241,11 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                             console.log(res, "res");
                             const task = res.data.task;
                             if (task) {
+                                setChestLoadingText("🔍 Verifying Transaction Status...");
                                 if (task.taskState === "ExecSuccess") {
+                                    setChestLoadingText(
+                                        "🎯 Operation Successful: Transaction Completed!",
+                                    );
                                     router.push(link);
                                     if (interval !== null) {
                                         clearInterval(interval);
@@ -495,8 +488,14 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     ) : null}
                 </div>
             ) : (
-                <div className="w-full max-w-[600px] h-full relative flex flex-col text-center items-center gap-5 mx-auto mt-20">
-                    <p className="text-white heading2 text-[32px] ">Loading Chest...</p>
+                <div className="w-[full] max-w-[600px] h-full relative flex flex-col text-center items-center gap-5 mx-auto mt-20">
+                    {/* <p className="text-white text-[32px] ">{chestLoadingText}</p> */}
+                    <ReactTyped
+                        className="text-white text-[24px]"
+                        strings={[chestLoadingText]}
+                        typeSpeed={30}
+                        loop
+                    />
                     <Lottie animationData={loaderAnimation} />
                 </div>
             )}

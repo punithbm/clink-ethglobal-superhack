@@ -75,6 +75,7 @@ module.exports = {
                 secondary: {
                     100: "#6D6D6D",
                 },
+                lightGray: "#2B2D30",
             },
 
             zIndex: {

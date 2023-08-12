@@ -1,10 +1,11 @@
 import { Dialog, Transition } from "@headlessui/react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import React, { FC, Fragment, useEffect, useState } from "react";
 import ReactDOM from "react-dom";
+
 import { icons } from "../utils/images";
 import PrimaryBtn from "./PrimaryBtn";
-import Image from "next/image";
 
 export default dynamic(() => Promise.resolve(ClaimBtnModal), {
     ssr: false,
@@ -71,7 +72,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             >
                                 <Dialog.Panel
-                                    className={`bg-black lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
+                                    className={`bg-lightGray lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
                                 >
                                     {open ? (
                                         <div className="px-4">
@@ -88,7 +89,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                             <p className="text-center text-white text-[24px] mb-5">
                                                 {openInput
                                                     ? "Enter Public Address"
-                                                    : "🎁 Claim Through"}
+                                                    : "💰 Claim"}
                                             </p>
                                             {!openInput && (
                                                 <>
@@ -97,9 +98,10 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                         onClick={() => {
                                                             handleConnect();
                                                         }}
+                                                        role="presentation"
                                                     >
                                                         <p className="text-center text-white">
-                                                            {"🔗 External Wallet"}
+                                                            {"🔗  External Wallet"}
                                                         </p>
                                                     </div>
                                                     <div
@@ -107,6 +109,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                         onClick={() => {
                                                             handleOpenInput();
                                                         }}
+                                                        role="presentation"
                                                     >
                                                         <p className="text-center text-white">
                                                             #️⃣ Public Address
@@ -116,9 +119,10 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                     <div
                                                         className="rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer"
                                                         onClick={() => {}}
+                                                        role="presentation"
                                                     >
                                                         <p className="text-center text-white">
-                                                            {`🏦 Bank Account`}
+                                                            {`🏦  Bank Account (Coming soon)`}
                                                         </p>
                                                     </div>
                                                 </>
@@ -133,8 +137,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                         inputMode="text"
                                                         type="string"
                                                         className={`rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer mb-5 pl-0 pt-2 pb-1 backdrop-blur-xl text-[24px] border-none text-center  text-white placeholder-white/40 block w-full focus:outline-none focus:ring-transparent`}
-                                                        placeholder={"0x..."}
-                                                        autoFocus={true}
+                                                        placeholder={"0xfc...71de"}
                                                         value={value}
                                                         onChange={(e) => {
                                                             handleInputChange(
@@ -154,7 +157,7 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
                                                                     ? "opacity-100"
                                                                     : "opacity-40"
                                                             }`}
-                                                            title={"Send Amount"}
+                                                            title={"Send"}
                                                             btnDisable={!value}
                                                             onClick={() => {
                                                                 handlePublicAddressTransaction(

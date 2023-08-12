@@ -152,11 +152,11 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                 leaveTo="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
                             >
                                 <Dialog.Panel
-                                    className={`bg-black lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
+                                    className={`bg-lightGray lg:min-w-[400px] rounded-[12px] w-full lg:w-[400px]  py-5`}
                                 >
                                     {open && showOptions ? (
                                         <div>
-                                            <div className="mb-5">
+                                            <div className="mb-1">
                                                 <QRComponent
                                                     walletAddress={url}
                                                     isShareQr={true}
@@ -164,7 +164,7 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                                     heightPx={240}
                                                 />
                                             </div>
-                                            <ul className="flex items-center justify-center">
+                                            <ul className="flex gap-4 items-center pb-4 justify-center">
                                                 <li>
                                                     <Link
                                                         href={`https://twitter.com/intent/tweet?url=${url}`}
@@ -177,7 +177,6 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                                             src={icons.x}
                                                             alt="twitter"
                                                         />
-                                                        Twitter
                                                     </Link>
                                                 </li>
                                                 <li>
@@ -192,7 +191,6 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                                             src={icons.telegramBlue}
                                                             alt="telegram"
                                                         />
-                                                        Telegram
                                                     </Link>
                                                 </li>
                                                 <li>
@@ -207,11 +205,10 @@ export const ShareBtnModal: FC<IClaimBtnModal> = (props) => {
                                                             src={icons.linkedinBlue}
                                                             alt="linkedin"
                                                         />
-                                                        LinkedIn
                                                     </Link>
                                                 </li>
                                             </ul>
-                                            <div className="relative rounded-lg border border-black px-2 py-1 bg-white/20 flex items-center justify-between w-[95%] mx-auto">
+                                            <div className="relative rounded-lg border border-black px-2 py-2 bg-white/20 flex items-center justify-between w-[95%] mx-auto">
                                                 <p className="font-medium text-[12px] text-white">
                                                     {trimLink(url)}
                                                 </p>

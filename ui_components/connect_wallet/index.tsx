@@ -12,7 +12,7 @@ interface IConnectWallet extends THandleStep {
 }
 
 export default function ConnectWallet(props: IConnectWallet) {
-    const { signIn, connectWallet, connecting } = props;
+    const { signIn, connecting, connectWallet } = props;
     return (
         <>
             <div className="w-full relative lg:pt-10">
@@ -42,13 +42,7 @@ export default function ConnectWallet(props: IConnectWallet) {
                             onClick={connectWallet}
                         />
                     </div>
-                    {/* <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg my-5">
-                    <ConnectButton />
-                </div> */}
-                    <p className="text-[16px] leading-[18px] text-center text-white/50 mb-6 lg:mb-4">
-                        OR
-                    </p>
-                    <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg">
+                    <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg mt-10">
                         <button
                             className={`py-4 w-full rounded-lg bg-white flex gap-2 items-center justify-center max-w-[400px]`}
                             onClick={signIn}
