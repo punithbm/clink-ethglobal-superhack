@@ -213,9 +213,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             const ethersProvider = new ethers.providers.JsonRpcProvider(
                 BaseGoerli.info.rpc,
             );
-            const relayPack = new GelatoRelayPack(
-                process.env.GELATO_RELAY_API_KEY,
-            );
+            const relayPack = new GelatoRelayPack(process.env.NEXT_GELATO_RELAY_API_KEY);
 
             // from signer address
             const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);

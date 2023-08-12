@@ -167,7 +167,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 setChestLoadingText("Safe contract created");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    const relayPack = new GelatoRelayPack(process.env.GELATO_RELAY_API_KEY);
+                    const relayPack = new GelatoRelayPack(process.env.NEXT_GELATO_RELAY_API_KEY);
                     setChestLoadingText(
                         "Initializing account abstraction for transaction relay",
                     );
@@ -322,7 +322,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                             <div className="rounded-lg border border-white/40 bg-white/5 ">
                                 <div className="flex items-center justify-between py-2 px-4">
                                     <div>
-                                        <p className="paragraph font-normal text-white/40">
+                                        <p className="text-white/40 paragraph">
                                             YOUR BALANCE
                                         </p>
                                         <div className="flex items-start gap-3 my-2">

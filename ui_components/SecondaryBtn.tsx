@@ -16,13 +16,10 @@ interface ISecondaryBtn {
 export default function SecondaryBtn(props: ISecondaryBtn) {
     const { title, onClick, rightImage, leftImage, showShareIcon, className } = props;
     return (
-        <button
-            className={`py-4 support_text_bold text-white rounded-lg flex gap-1 items-center w-full justify-center border border-white bg-white/10 max-w-[400px] mx-auto ${className}`}
-            onClick={onClick}
-        >
-            {leftImage && <Image src={leftImage} alt="right-image" />}
-            {title}
-            {rightImage && <Image src={rightImage} alt="right-image" />}
-        </button>
+      <button className={`py-4 text-white support_text_bold rounded-lg flex gap-1 items-center w-full justify-center border border-white max-w-[400px] mx-auto ${className}`} onClick={onClick}>
+        {leftImage && <Image src={leftImage} alt="right-image" />}
+        {title}
+        {rightImage && <Image src={rightImage} alt="right-image" />}
+      </button>
     );
 }
