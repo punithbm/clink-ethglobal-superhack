@@ -1,5 +1,5 @@
-import { Fragment } from "react";
 import { Menu, Transition } from "@headlessui/react";
+import { Fragment } from "react";
 
 export default function ConnectBtn() {
     return (

@@ -1,15 +1,14 @@
 import { useRouter } from "next/router";
 import React from "react";
-import ShareLink from "../ui_components/ShareLinkPage";
-import { WagmiConfig, createConfig, configureChains } from "wagmi";
+import { configureChains, createConfig, WagmiConfig } from "wagmi";
 import { baseGoerli } from "wagmi/chains";
-
-import { publicProvider } from "wagmi/providers/public";
-
 import { CoinbaseWalletConnector } from "wagmi/connectors/coinbaseWallet";
 import { InjectedConnector } from "wagmi/connectors/injected";
 import { MetaMaskConnector } from "wagmi/connectors/metaMask";
+import { publicProvider } from "wagmi/providers/public";
+
 import { baseRPC } from "../auth/config";
+import ShareLink from "../ui_components/ShareLinkPage";
 
 const { chains, publicClient, webSocketPublicClient } = configureChains(
     [baseGoerli],

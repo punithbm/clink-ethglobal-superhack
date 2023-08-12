@@ -1,6 +1,8 @@
 import { Dialog, Transition } from "@headlessui/react";
+import { useConnectModal } from "@rainbow-me/rainbowkit";
+import { serializeError } from "eth-rpc-errors";
+import dynamic from "next/dynamic";
 import Image from "next/image";
-import React, { FC, Fragment, useEffect, useRef, useState } from "react";
 import QRCodeStyling, {
     CornerDotType,
     CornerSquareType,
@@ -13,16 +15,15 @@ import QRCodeStyling, {
     ShapeType,
     TypeNumber,
 } from "qr-code-styling";
+import React, { FC, Fragment, useEffect, useRef, useState } from "react";
 import ReactDOM from "react-dom";
-import { icons } from "../../utils/images";
-import dynamic from "next/dynamic";
-import { copyToClipBoard, trimAddress } from "../../utils";
-import { QRComponent } from "./QRComponent";
-import { DepositAmountComponent } from "./DepositAmountComponent";
 import { toast } from "react-toastify";
-import { serializeError } from "eth-rpc-errors";
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { useAccount } from "wagmi";
+
+import { copyToClipBoard, trimAddress } from "../../utils";
+import { icons } from "../../utils/images";
+import { DepositAmountComponent } from "./DepositAmountComponent";
+import { QRComponent } from "./QRComponent";
 
 export default dynamic(() => Promise.resolve(DepositAmountModal), {
     ssr: false,

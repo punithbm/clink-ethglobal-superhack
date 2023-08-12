@@ -1,7 +1,8 @@
-import * as bs58 from "bs58";
 import { TW, WalletCore } from "@trustwallet/wallet-core";
-import { ISigningInput, TTranx } from "./types";
+import * as bs58 from "bs58";
+
 import { hexToBuffer } from "..";
+import { ISigningInput, TTranx } from "./types";
 export class Wallet {
     CoinType: WalletCore["CoinType"];
     HexCoding: WalletCore["HexCoding"];
@@ -81,7 +82,7 @@ export class Wallet {
             default:
                 break;
         }
-        let generatedAddress = this.AnyAddress.createWithPublicKey(
+        const generatedAddress = this.AnyAddress.createWithPublicKey(
             pubKey,
             coinType,
         ).description();
@@ -91,7 +92,7 @@ export class Wallet {
     createPayLink = () => {
         const account = this.HDWallet.create(128, "");
         const entropy = account.entropy();
-        const address =  account.getAddressForCoin(this.CoinType.ethereum);
+        const address = account.getAddressForCoin(this.CoinType.ethereum);
         const hash = bs58.encode(entropy);
         return { link: "/i#" + hash, address: address };
     };

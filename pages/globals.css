@@ -55,8 +55,8 @@ body {
 
 .dollorInput[type="number"]::-webkit-inner-spin-button,
 .dollorInput[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 .shareLinkBg {
@@ -67,4 +67,10 @@ body {
 }
 .header-menu-list .header-submenu {
     display: none;
+}
+
+.profileBackgroundImage {
+    background-image: url("../public/assets/images/bg_card_topology.svg");
+    background-repeat: no-repeat, no-repeat;
+    background-size: cover;
 }

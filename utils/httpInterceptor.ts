@@ -5,9 +5,9 @@ import axios, {
     AxiosResponse,
 } from "axios";
 
+import { baseGoerli } from "../constants/base";
 import { TApiResponse } from "../types";
 import { toastFlashMessage } from ".";
-import { baseGoerli } from "../constants";
 
 const axiosInstance: AxiosInstance = axios.create();
 

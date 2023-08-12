@@ -33,7 +33,7 @@ module.exports = {
             },
 
             lineHeight: {
-                1: "1.25rem", 
+                1: "1.25rem",
                 2: "2.25rem",
                 3: "2.875rem",
                 4: "3rem",
@@ -46,7 +46,7 @@ module.exports = {
                 11: "6.25rem",
                 12: "4.25rem",
                 13: "5rem",
-                14: "1.5rem"
+                14: "1.5rem",
             },
 
             letterSpacing: {

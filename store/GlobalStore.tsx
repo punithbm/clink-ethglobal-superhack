@@ -1,9 +1,6 @@
 let Store: any = null;
 
-export function saveStore(createdStore: {
-    state: any;
-    dispatch: any;
-}) {
+export function saveStore(createdStore: { state: any; dispatch: any }) {
     Store = { ...createdStore };
 }
 

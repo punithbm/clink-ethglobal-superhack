@@ -29,8 +29,7 @@ export type TTranx = {
     path?: string;
     hardwareType?: string;
     txBuff?: Buffer;
-    transactionType:
-        | TRANSACTION_TYPE.SEND
+    transactionType: TRANSACTION_TYPE.SEND;
 };
 
 export enum TRANSACTION_TYPE {

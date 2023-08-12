@@ -1,5 +1,5 @@
-import { FC } from "react";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { FC } from "react";
 
 export const RainbowKitConnectButton: FC = () => {
     return (

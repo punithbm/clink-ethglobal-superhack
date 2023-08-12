@@ -1,11 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { FC, Fragment, ReactNode, useContext, useState } from "react";
-import { icons } from "../../utils/images";
 import Image from "next/image";
-import { ACTIONS, GlobalContext } from "../../context/GlobalContext";
-import { trimAddress } from "../../utils";
 import Link from "next/link";
-import { ESteps, LOGGED_IN } from "../../pages";
+import { FC, Fragment, ReactNode, useContext, useState } from "react";
+
+import { ACTIONS, GlobalContext } from "../../context/GlobalContext";
+import { ESTEPS, LOGGED_IN } from "../../pages";
+import { trimAddress } from "../../utils";
+import { icons } from "../../utils/images";
 import { useWagmi } from "../../utils/wagmi/WagmiContext";
 
 type TProps = {
@@ -35,7 +36,7 @@ const BottomSheet: FC<TProps> = (props) => {
     };
     const handleDisConnect = async () => {
         await disconnect();
-        handleSteps(ESteps.ONE);
+        handleSteps(ESTEPS.ONE);
         dispatch({
             type: ACTIONS.LOGOUT,
             payload: "",

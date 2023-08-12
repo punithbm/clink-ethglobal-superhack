@@ -1,9 +1,10 @@
-import { ReactNode, createContext, useContext } from "react";
-import { WagmiHoc } from ".";
+import { connect, fetchBalance, getAccount } from "@wagmi/core";
+import { createContext, ReactNode, useContext } from "react";
 import { ConnectArgs, disconnect, sendTransaction } from "wagmi/actions";
-import { fetchBalance, connect, getAccount } from "@wagmi/core";
 import { baseGoerli } from "wagmi/chains";
 import { InjectedConnector } from "wagmi/connectors/injected";
+
+import { WagmiHoc } from ".";
 
 interface IProps {
     children?: ReactNode;

@@ -1,7 +1,4 @@
-import { FC, useEffect, useRef, useState } from "react";
-import { icons } from "../../utils/images";
 import Image from "next/image";
-import { copyToClipBoard, trimAddress } from "../../utils";
 import QRCodeStyling, {
     CornerDotType,
     CornerSquareType,
@@ -14,6 +11,10 @@ import QRCodeStyling, {
     ShapeType,
     TypeNumber,
 } from "qr-code-styling";
+import { FC, useEffect, useRef, useState } from "react";
+
+import { copyToClipBoard, trimAddress } from "../../utils";
+import { icons } from "../../utils/images";
 export declare type QRCodeStylingOptions = {
     type?: DrawType;
     shape?: ShapeType;
@@ -66,9 +67,10 @@ const useQRCodeStyling = (options: QRCodeStylingOptions): QRCodeStyling | null =
 };
 export interface IQRComponent {
     walletAddress: string;
+    isShareQr?: boolean;
 }
 export const QRComponent: FC<IQRComponent> = (props) => {
-    const { walletAddress } = props;
+    const { walletAddress, isShareQr } = props;
     const [options] = useState<Options>({
         width: 240,
         height: 240,
@@ -119,28 +121,33 @@ export const QRComponent: FC<IQRComponent> = (props) => {
     return (
         <div>
             <p className="text-white text-[20px] text-center m-2">
-                You can deposit crypto into your account via this public key:
+                {!isShareQr
+                    ? "You can deposit crypto into your account via this public key:"
+                    : null}
             </p>
             <div className="flex items-center justify-center" ref={ref} />
-            <div>
-                <div className="flex items-center justify-center">
-                    <div className="w-fit mt-[15px] border-dashed border border-secondary-300 dark:border-secondaryDark-300 rounded-[10px] flex justify-center items-start md:items-center p-2">
-                        <div className=" text-white text-[14px] break-all">
-                            {trimAddress(walletAddress)}
+
+            {!isShareQr ? (
+                <div>
+                    <div className="flex items-center justify-center">
+                        <div className="w-fit mt-[15px] border-dashed border border-secondary-300 dark:border-secondaryDark-300 rounded-[10px] flex justify-center items-start md:items-center p-2">
+                            <div className=" text-white text-[14px] break-all">
+                                {trimAddress(walletAddress)}
+                            </div>
+                            <button className="ml-1 w-6 h-6" onClick={() => handleCopy()}>
+                                <Image
+                                    src={icons.copyBlack}
+                                    alt="copyIcon"
+                                    className="w-full h-full"
+                                />
+                            </button>
                         </div>
-                        <button className="ml-1 w-6 h-6" onClick={() => handleCopy()}>
-                            <Image
-                                src={icons.copyBlack}
-                                alt="copyIcon"
-                                className="w-full h-full"
-                            />
-                        </button>
                     </div>
+                    {showcopyText && (
+                        <p className="text-black text-[14px] text-center mt-2">Copied!</p>
+                    )}
                 </div>
-                {showcopyText && (
-                    <p className="text-black text-[14px] text-center mt-2">Copied!</p>
-                )}
-            </div>
+            ) : null}
         </div>
     );
 };

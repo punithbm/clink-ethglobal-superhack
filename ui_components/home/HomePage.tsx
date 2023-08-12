@@ -1,8 +1,9 @@
-import * as React from "react";
-import PrimaryBtn from "../PrimaryBtn";
-import { icons } from "../../utils/images";
-import Image from "next/image";
 import { getNetwork } from "@wagmi/core";
+import Image from "next/image";
+import * as React from "react";
+
+import { icons } from "../../utils/images";
+import PrimaryBtn from "../PrimaryBtn";
 
 interface IHome {
     handleSetupChest: () => void;

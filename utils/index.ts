@@ -1,5 +1,5 @@
-import { getStore } from "../store/GlobalStore";
 import { ACTIONS, GlobalContext } from "../context/GlobalContext";
+import { getStore } from "../store/GlobalStore";
 
 export const ZERO_USD = "$0";
 export const MIN_VAL = 0.000001;
@@ -63,6 +63,11 @@ export const trimAddress = (val: string) => {
     const lastFour = val.substring(val.length - 4, val.length);
     return firstFour + "..." + lastFour;
 };
+export const trimLink = (val: string) => {
+    const firstTen = val.substring(0, 6);
+    const lastTen = val.substring(val.length - 15, val.length);
+    return firstTen + "..." + lastTen;
+};
 
 export const getCurrencyFormattedNumber = (
     val: number | string,
@@ -80,6 +85,8 @@ export const getCurrencyFormattedNumber = (
     } else if (val < 0 || val < 1) {
         if (val < 0.01 && !ignoreSmallVal) {
             return "<$0.01";
+        } else if (ignoreSmallVal && val < 0.01) {
+            return ZERO_USD;
         }
     } else if (val > 999999999) {
         val = val / 1000000000;

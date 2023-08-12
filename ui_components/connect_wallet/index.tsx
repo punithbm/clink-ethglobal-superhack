@@ -1,9 +1,10 @@
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Image from "next/image";
 import * as React from "react";
+
+import { THandleStep } from "../../pages";
 import { icons } from "../../utils/images";
 import SecondaryBtn from "../SecondaryBtn";
-import { THandleStep } from "../../pages";
-import Image from "next/image";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface IConnectWallet extends THandleStep {
     signIn: () => Promise<void>;
@@ -49,7 +50,7 @@ export default function ConnectWallet(props: IConnectWallet) {
                 </p>
                 <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg">
                     <button
-                        className={`py-4 w-[90%] rounded-lg bg-white flex gap-2 items-center justify-center max-w-[320px]`}
+                        className={`py-4 w-full rounded-lg bg-white flex gap-2 items-center justify-center max-w-[400px]`}
                         onClick={signIn}
                     >
                         <Image

@@ -1,16 +1,15 @@
 import "react-toastify/dist/ReactToastify.css";
+
+import { initWasm } from "@trustwallet/wallet-core";
+import { BigNumber } from "bignumber.js";
 import { serializeError } from "eth-rpc-errors";
+import Image from "next/image";
 import * as React from "react";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
-import PrimaryBtn from "./PrimaryBtn";
-import SecondaryBtn from "./SecondaryBtn";
-import { icons } from "../utils/images";
-import { Address } from "wagmi";
-import { initWasm } from "@trustwallet/wallet-core";
-import { Wallet } from "../utils/wallet";
-import Image from "next/image";
 import { toast } from "react-toastify";
-import { BigNumber } from "bignumber.js";
+import { ToastContainer } from "react-toastify";
+import { Address } from "wagmi";
+
 import {
     getBalance,
     getEstimatedGas,
@@ -19,6 +18,7 @@ import {
     getSendTransactionStatus,
     getUsdPrice,
 } from "../apiServices";
+import { GlobalContext } from "../context/GlobalContext";
 import {
     getCurrencyFormattedNumber,
     getTokenValueFormatted,
@@ -27,10 +27,14 @@ import {
     numHex,
 } from "../utils";
 import { Base } from "../utils/chain/base";
-import { TTranx, TRANSACTION_TYPE } from "../utils/wallet/types";
+import { icons } from "../utils/images";
 import { useWagmi } from "../utils/wagmi/WagmiContext";
-import { GlobalContext } from "../context/GlobalContext";
-import { ToastContainer } from "react-toastify";
+import { Wallet } from "../utils/wallet";
+import { TRANSACTION_TYPE, TTranx } from "../utils/wallet/types";
+import ClaimBtnModal from "./ClaimBtnModal";
+import PrimaryBtn from "./PrimaryBtn";
+import SecondaryBtn from "./SecondaryBtn";
+import { ShareBtnModal } from "./ShareBtnModal";
 
 export interface IShareLink {
     uuid: string;
@@ -52,10 +56,10 @@ const ShareLink: FC<IShareLink> = (props) => {
     const [headingText, setHeadingText] = useState("Your Chest is ready");
     const [linkValueUsd, setLinkValueUsd] = useState("");
     const [isRedirected, setIsRedirected] = useState(false);
-
     const [isLoading, setIsLoading] = useState(true);
-
     const [processing, setProcessing] = useState(false);
+    const [openClaimModal, setOpenClaimModal] = useState(false);
+    const [openShareModal, setOpenShareModal] = useState(false);
     const shareData = {
         text: "Here is you Gifted Chest",
         url: typeof window !== "undefined" ? window.location.href : "",
@@ -104,10 +108,10 @@ const ShareLink: FC<IShareLink> = (props) => {
         const bgNum = bgBal.dividedBy(Math.pow(10, 18)).toNumber();
         setWalletBalanceHex(hexValue);
         getUsdPrice().then(async (res: any) => {
-            setTokenValue(getTokenValueFormatted(bgNum));
+            setTokenValue(getTokenValueFormatted(bgNum, 6, false));
             setIsLoading(false);
             const formatBal = bgNum * res.data.ethereum.usd;
-            setLinkValueUsd(getCurrencyFormattedNumber(formatBal));
+            setLinkValueUsd(getCurrencyFormattedNumber(formatBal, 2, "USD", true));
         });
     };
 
@@ -150,7 +154,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             let bgBal = BigNumber(walletBalanceHex);
             const bgGasPirce = BigNumber("0x" + gasPirce);
             const bgGasLimit = BigNumber(gasLimit);
-            const gasFee = bgGasPirce.multipliedBy(bgGasLimit).multipliedBy(2);
+            const gasFee = bgGasPirce.multipliedBy(bgGasLimit);
             bgBal = bgBal.minus(gasFee);
             const amountToSend = hexFormatter(bgBal.toString(16));
             const nonce = (await getNonce(fromAddress)) as any;
@@ -219,6 +223,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             setIsRedirected(true);
         }
     }, []);
+
     return (
         <div className="w-full h-screen relative flex items-center">
             <ToastContainer
@@ -266,13 +271,15 @@ const ShareLink: FC<IShareLink> = (props) => {
                         <div className="hidden lg:block w-full max-w-[400px]">
                             <PrimaryBtn
                                 title={shareText}
-                                onClick={copyToClipBoard}
+                                onClick={() => {
+                                    setOpenShareModal(true);
+                                }}
                                 rightImage={showShareIcon ? icons.shareBtnIcon : ""}
                             />
                         </div>
                         <SecondaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => handleConnect()}
+                            onClick={() => setOpenClaimModal(true)}
                             rightImage={processing ? undefined : icons.downloadBtnIcon}
                         />
                     </>
@@ -280,7 +287,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                     <>
                         <PrimaryBtn
                             title={processing ? "Processing..." : "Claim"}
-                            onClick={() => handleConnect()}
+                            onClick={() => setOpenClaimModal(true)}
                             rightImage={
                                 processing ? undefined : icons.downloadBtnIconBlack
                             }
@@ -298,13 +305,21 @@ const ShareLink: FC<IShareLink> = (props) => {
                         <div className="hidden lg:block w-full max-w-[400px]">
                             <SecondaryBtn
                                 title={shareText}
-                                onClick={copyToClipBoard}
+                                onClick={() => {
+                                    setOpenShareModal(true);
+                                }}
                                 rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
                             />
                         </div>
                     </>
                 )}
             </div>
+            <ClaimBtnModal
+                open={openClaimModal}
+                setOpen={setOpenClaimModal}
+                uuid={uuid}
+            />
+            <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
         </div>
     );
 };

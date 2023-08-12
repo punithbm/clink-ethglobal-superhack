@@ -1,11 +1,12 @@
-import { FC, useEffect, useMemo, useState } from "react";
-import PrimaryBtn from "../PrimaryBtn";
-import { useWagmi } from "../../utils/wagmi/WagmiContext";
-import { parseEther } from "viem";
-import { getSendTransactionStatus } from "../../apiServices";
-import { toast } from "react-toastify";
 import { serializeError } from "eth-rpc-errors";
+import { FC, useEffect, useMemo, useState } from "react";
+import { toast } from "react-toastify";
+import { parseEther } from "viem";
+
+import { getSendTransactionStatus } from "../../apiServices";
 import { getTokenFormattedNumber } from "../../utils";
+import { useWagmi } from "../../utils/wagmi/WagmiContext";
+import PrimaryBtn from "../PrimaryBtn";
 export interface IDepositAmountComponent {
     tokenPrice: string;
     walletAddress: string;

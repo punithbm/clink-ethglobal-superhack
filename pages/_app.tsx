@@ -2,6 +2,7 @@ import "./globals.css";
 
 import type { AppProps } from "next/app";
 import React, { FC } from "react";
+
 import GlobalContextProvider from "../context/GlobalContext";
 import { WagmiWrapper } from "../utils/wagmi/WagmiContext";
 

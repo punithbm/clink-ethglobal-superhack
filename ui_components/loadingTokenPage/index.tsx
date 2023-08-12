@@ -1,8 +1,9 @@
-import * as React from "react";
 import Lottie from "lottie-react";
+import Image from "next/image";
+import * as React from "react";
+
 import * as loaderAnimation from "../../public/lottie/loader.json";
 import { icons } from "../../utils/images";
-import Image from "next/image";
 
 export default function LoadingTokenPage() {
     return (
