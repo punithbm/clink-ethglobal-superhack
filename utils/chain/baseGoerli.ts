@@ -24,6 +24,6 @@ export const BaseGoerli = {
     },
     info: {
         url: "https://goerli.base.org/",
-        rpc: process.env.NEXT_PUBLIC_RPC_URL,
+        rpc: process.env.NEXT_PUBLIC_RPC_URL ?? "https://goerli.base.org/",
     },
 };
