@@ -1,34 +1,40 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Clink Safe
 
-## Getting Started
+Clink, the easiest way to send and receive crypto tokens.
 
-First, run the development server:
+Using Clink, anyone can deposit and send tokens to another person whether or not they already have a crypto smart wallet
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-```
+Clink is a lightweight non custodial wallet designed to make transferring digital assets as easy as sending a link. Someone with crypto can create a Clink and send that link to anyone over any platform (text, discord, email, etc). The amazing thing is, the link is the smart contract wallet!
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### How it Works
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Create a Clink Link
+2. Share your Clink Link
+3. Claim Reward
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+e.g., 
 
-## Learn More
+Consider Bob wants to send money to Alice But he doesn’t know Alice Address or any other details. 
 
-To learn more about Next.js, take a look at the following resources:
+![Clink Safe Infra](https://github.com/punithbm/eth-micropay-superhack/assets/13044958/3fb0dfaf-827b-4bc8-a7b3-2f7a56cf1e42)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+Clink trying to represent the idea of 'Digital Cash' better than any other cryptocurrency, asset or tool on the market today
 
-## Deploy on Vercel
+### Inspiration
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+*There's still a tremendous amount of friction in crypto that holds back mainstream adoption. It's unreasonable to ask the general population to set up a 12- or 24-word seed phrase wallet, much less a hardware wallet, just to send a dollar or receive a commemorative NFT.*
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+### Why Does it Matter?
+
+- Social and Email
+    - Send clinks at scale via email, twitter, discord etc.,
+- In Real Life
+    - Distribute Clinks vai QR Code or NFC Tags at in person events
+- Web Apps
+    - Place a button to distribute Clinks on your Dapp
+
+### Complete Guide
+
+Find the below step by step guid on how to do it
+![Clink Safe Infra2](https://github.com/punithbm/eth-micropay-superhack/assets/13044958/760038db-765b-4a56-a45b-427184bd1447)
