@@ -94,7 +94,7 @@ const Header = (props: IHeader) => {
 
     return (
         <header className="relative z-[9]">
-            <div className="h-[80px] hidden md:block"></div>
+            <div className="h-[40px] hidden md:block"></div>
             <div className="sticky top-0 flex items-center justify-center">
                 <div className="w-[95%] max-w-[600px] h-[64px] rounded-2xl bg-[#0C0421] text-center flex items-center justify-between relative z-[9]">
                     {step > 1 ? (
