@@ -380,55 +380,67 @@ const ShareLink: FC<IShareLink> = (props) => {
                     <>
                         <div className="lg:hidden block w-full">
                             <PrimaryBtn
+                                className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                                 title="Share"
                                 onClick={() => {
                                     handleShareURL();
                                 }}
                                 rightImage={showShareIcon ? icons.shareBtnIcon : ""}
                                 showShareIcon={showShareIcon}
+                                btnDisable={isLoading}
                             />
                         </div>
                         <div className="hidden lg:block w-full max-w-[400px]">
                             <PrimaryBtn
+                                className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                                 title={shareText}
                                 onClick={() => {
                                     setOpenShareModal(true);
                                 }}
                                 rightImage={showShareIcon ? icons.shareBtnIcon : ""}
+                                btnDisable={isLoading}
                             />
                         </div>
                         <SecondaryBtn
+                            className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                             title={processing ? "Processing..." : "Claim"}
                             onClick={() => handleClaimClick()}
                             rightImage={processing ? undefined : icons.downloadBtnIcon}
+                            btnDisable={isLoading}
                         />
                     </>
                 ) : (
                     <>
                         <PrimaryBtn
+                            className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                             title={processing ? "Processing..." : "Claim"}
                             onClick={() => handleClaimClick()}
                             rightImage={
                                 processing ? undefined : icons.downloadBtnIconBlack
                             }
+                            btnDisable={isLoading}
                         />
                         <div className="lg:hidden block w-full">
                             <SecondaryBtn
+                                className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                                 title="Share"
                                 onClick={() => {
                                     handleShareURL();
                                 }}
                                 rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
                                 showShareIcon={showShareIcon}
+                                btnDisable={isLoading}
                             />
                         </div>
                         <div className="hidden lg:block w-full max-w-[400px]">
                             <SecondaryBtn
+                                className={`${isLoading ? "opacity-60" : "opacity-100"}`}
                                 title={shareText}
                                 onClick={() => {
                                     setOpenShareModal(true);
                                 }}
                                 rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
+                                btnDisable={isLoading}
                             />
                         </div>
                     </>
