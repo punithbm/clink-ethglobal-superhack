@@ -7,12 +7,11 @@ import SecondaryBtn from "../SecondaryBtn";
 
 interface IConnectWallet extends THandleStep {
     signIn: () => Promise<void>;
-    connectWallet: () => Promise<void>;
-    connecting: boolean;
+    loader?: boolean;
 }
 
 export default function ConnectWallet(props: IConnectWallet) {
-    const { signIn, connecting, connectWallet } = props;
+    const { signIn, loader } = props;
     return (
         <>
             <div className="w-full relative lg:pt-10">
@@ -42,21 +41,31 @@ export default function ConnectWallet(props: IConnectWallet) {
                             onClick={connectWallet}
                         />
                     </div> */}
-                    <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg mt-10">
-                        <button
-                            className={`py-4 w-full rounded-lg bg-white flex gap-2 items-center justify-center max-w-[400px]`}
-                            onClick={signIn}
-                        >
-                            <Image
-                                src={icons.googleIcon}
-                                alt="google login"
-                                className="w-6"
-                            />
-                            <span className="text-[16px] leading-1 font-medium text-black/50 self-center my-auto">
-                                {"Sign in with Google"}
-                            </span>
-                        </button>
-                    </div>
+                    {loader ? (
+                        <div className="h-full flex flex-col items-center justify-center">
+                            <div className="spinnerLoader"></div>
+
+                            <p className=" mt-5 opacity-50 mb-14 text-[16px] leading-14 text-white">
+                                Setting up Smart Account!
+                            </p>
+                        </div>
+                    ) : (
+                        <div className="flex gap-3 justify-center items-center w-[80%] md:w-[60%] lg:w-[360px] mx-auto rounded-lg mt-10">
+                            <button
+                                className={`py-4 w-full rounded-lg bg-white flex gap-2 items-center justify-center max-w-[400px]`}
+                                onClick={signIn}
+                            >
+                                <Image
+                                    src={icons.googleIcon}
+                                    alt="google login"
+                                    className="w-6"
+                                />
+                                <span className="text-[16px] leading-1 font-medium text-black/50 self-center my-auto">
+                                    {"Sign in with Google"}
+                                </span>
+                            </button>
+                        </div>
+                    )}
                 </div>
             </div>
         </>

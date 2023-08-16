@@ -1,4 +1,5 @@
 import "react-toastify/dist/ReactToastify.css";
+import "tailwindcss/tailwind.css";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +9,6 @@ import { GlobalContext } from "../../context/GlobalContext";
 import { trimAddress } from "../../utils";
 import { icons } from "../../utils/images";
 import QrModal from "../QrModal";
-import "tailwindcss/tailwind.css";
 
 export interface IProfileCard {
     profileImage?: string;
@@ -35,7 +35,9 @@ export const ProfileCard: FC<IProfileCard> = (props) => {
                 <div className="pt-2">
                     <Image
                         src={
-                            address ? `https://effigy.im/a/${address}.png` : icons.ethLogo
+                            address
+                                ? `https://effigy.im/a/${address}.png`
+                                : icons.loadAvatar
                         }
                         alt="profile image"
                         width={50}
@@ -45,7 +47,7 @@ export const ProfileCard: FC<IProfileCard> = (props) => {
                 </div>
                 <p className="text-sm mx-auto pt-1 text-white/50">My Smart Wallet</p>
                 {transactionLoading ? (
-                    <div className="w-20 h-10 animate-pulse bg-white/10 rounded-lg mx-auto"></div>
+                    <div className="w-20 h-3 my-2 animate-pulse bg-white/10 rounded-lg mx-auto"></div>
                 ) : (
                     <p className="text-sm text-white pb-2">{`${trimAddress(address)}`}</p>
                 )}

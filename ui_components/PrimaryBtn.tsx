@@ -12,18 +12,29 @@ interface IPrimaryBtn {
     showShareIcon?: boolean;
     className?: string;
     btnDisable?: boolean;
+    loading?: boolean;
 }
 
 export default function PrimaryBtn(props: IPrimaryBtn) {
-    const { title, onClick, rightImage, showShareIcon, className, btnDisable } = props;
+    const { title, onClick, rightImage, showShareIcon, className, btnDisable, loading } =
+        props;
     return (
         <button
             className={`${className} py-4 btnBg support_text_bold rounded-lg flex gap-1 items-center w-full justify-center my-0 mx-auto max-w-[400px] `}
             onClick={onClick}
             disabled={btnDisable}
         >
-            {title}
-            {rightImage ? <Image src={rightImage ?? ""} alt="right-image" /> : null}
+            {!loading && title}
+            {rightImage && !loading ? (
+                <Image src={rightImage ?? ""} alt="right-image" />
+            ) : null}
+            {loading && (
+                <div className="bouncing-loader-black">
+                    <div></div>
+                    <div></div>
+                    <div></div>
+                </div>
+            )}
         </button>
     );
 }

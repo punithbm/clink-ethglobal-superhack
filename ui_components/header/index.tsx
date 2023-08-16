@@ -18,6 +18,8 @@ interface IHeader {
     onHamburgerClick: () => void;
     signOut: () => Promise<void>;
     setWalletAddress: (val: string) => void;
+    loader?: boolean;
+    initLoader?: boolean;
 }
 
 const Header = (props: IHeader) => {
@@ -30,6 +32,8 @@ const Header = (props: IHeader) => {
         onHamburgerClick,
         signOut,
         setWalletAddress,
+        loader,
+        initLoader,
     } = props;
     const {
         dispatch,
@@ -97,18 +101,18 @@ const Header = (props: IHeader) => {
             <div className="h-[40px] hidden md:block"></div>
             <div className="sticky top-0 flex items-center justify-center">
                 <div className="w-[95%] max-w-[600px] h-[64px] rounded-2xl bg-[#0C0421] text-center flex items-center justify-between relative z-[9]">
-                    {step > 1 ? (
-                        <div className="ml-4">
-                            <BackBtn
-                                onClick={() => handleSteps(step === 3 ? 1 : step - 1)}
-                            />
-                        </div>
-                    ) : (
+                    {step === 1 ? (
                         <div className="flex gap-1 pl-2">
                             <Image src={icons.logo2} alt="logo" className="w-10" />
                             <p className="text-[16px] font-bold text-white self-center">
                                 Clink Safe
                             </p>
+                        </div>
+                    ) : (
+                        <div className="ml-4">
+                            <BackBtn
+                                onClick={() => handleSteps(step === 3 ? 1 : step - 1)}
+                            />
                         </div>
                     )}
 
@@ -116,18 +120,26 @@ const Header = (props: IHeader) => {
                         <button
                             className={`px-4 h-[40px] rounded-lg bg-white flex gap-2 items-center justify-center`}
                             onClick={signIn}
-                            disabled={isConnected}
+                            disabled={address || loader || initLoader ? true : false}
                         >
                             <Image
-                                src={!isConnected ? icons.googleIcon : icons.baseLogo}
+                                src={!address ? icons.googleIcon : icons.baseLogo}
                                 alt="google login"
                                 width={20}
                                 height={20}
                                 className="w-5 rounded-full"
                             />
-                            <span className="text-[16px] font-medium text-black/50 self-center my-auto">
-                                {address ? trimAddress(address) : "Login"}
-                            </span>
+                            {loader || initLoader ? (
+                                <div className="bouncing-loader">
+                                    <div></div>
+                                    <div></div>
+                                    <div></div>
+                                </div>
+                            ) : (
+                                <span className="text-[16px] font-medium text-black/50 self-center my-auto">
+                                    {address ? trimAddress(address) : "Login"}
+                                </span>
+                            )}
                         </button>
                         <div className="relative" ref={menuRef}>
                             <button

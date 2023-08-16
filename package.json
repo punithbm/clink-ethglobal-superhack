@@ -11,6 +11,7 @@
         "lint:fix": "eslint ./ --ext .jsx,.js,.ts,.tsx --quiet --fix --ignore-path ./.gitignore"
     },
     "dependencies": {
+        "@ethereumjs/util": "^8.0.0",
         "@headlessui/react": "^1.7.16",
         "@rainbow-me/rainbowkit": "^1.0.8",
         "@safe-global/account-abstraction-kit-poc": "^1.2.0",

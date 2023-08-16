@@ -118,7 +118,6 @@ export const ClaimBtnModal: FC<IClaimBtnModal> = (props) => {
 
                                                     <div
                                                         className="rounded-lg border border-gray-500 bg-white/5 p-2 cursor-pointer"
-                                                        onClick={() => {}}
                                                         role="presentation"
                                                     >
                                                         <p className="text-center text-white">

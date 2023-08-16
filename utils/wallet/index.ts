@@ -1,5 +1,6 @@
 import { TW, WalletCore } from "@trustwallet/wallet-core";
 import * as bs58 from "bs58";
+
 import { TTranx } from "./types";
 export class Wallet {
     CoinType: WalletCore["CoinType"];

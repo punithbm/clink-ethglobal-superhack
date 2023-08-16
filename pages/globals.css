@@ -105,3 +105,83 @@ body {
     background-position: 200%0, 0 0;
     transition-duration: 1.5s;
 }
+
+@keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+  }
+  @-webkit-keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
+  }
+  
+  .spinnerLoader {
+    width: 50px;
+    height: 50px;
+    margin: 0;
+    background: transparent;
+    border-top: 4px solid #26d797;
+    border-bottom: 4px solid transparent;
+    border-left: 4px solid #26d797;
+    border-right: 4px solid transparent;
+    border-radius: 50%;
+    -webkit-animation: 1.1s spin linear infinite;
+    animation: 1.1s spin linear infinite;
+  }
+
+  .bouncing-loader {
+    display: flex;
+    justify-content: center;
+    margin: 10px auto;
+  }
+  
+  .bouncing-loader > div {
+    width: 8px;
+    height: 8px;
+    margin: 3px 4px;
+    border-radius: 50%;
+    background: linear-gradient(93.22deg, #44e6d2 8.1%, #26d797 93.89%);
+    opacity: 1;
+    animation: bouncing-loader 0.5s infinite alternate;
+  }
+
+  .bouncing-loader-black {
+    display: flex;
+    justify-content: center;
+    margin: 10px auto;
+  }
+  
+  .bouncing-loader-black > div {
+    width: 8px;
+    height: 8px;
+    margin: 3px 4px;
+    border-radius: 50%;
+    background: #000000;
+    opacity: 1;
+    animation: bouncing-loader 0.5s infinite alternate;
+  }
+  
+  @keyframes bouncing-loader {
+    to {
+      opacity: 0.5;
+      transform: translateY(-8px);
+    }
+  }
+  
+  .bouncing-loader > div:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .bouncing-loader > div:nth-child(3) {
+    animation-delay: 0.4s;
+  }
+
+  .bouncing-loader-black > div:nth-child(2) {
+    animation-delay: 0.2s;
+  }
+  
+  .bouncing-loader-black > div:nth-child(3) {
+    animation-delay: 0.4s;
+  }

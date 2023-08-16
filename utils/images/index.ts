@@ -12,6 +12,7 @@ import hamburgerBlack from "../../public/assets/images/hamburger_black.svg";
 import helpIcon from "../../public/assets/images/help_icon.svg";
 import linkWhite from "../../public/assets/images/link_white.svg";
 import linkedinBlue from "../../public/assets/images/linkedin_blue.svg";
+import loadAvatar from "../../public/assets/images/load_avatar.png";
 import logo from "../../public/assets/images/logo.svg";
 import logo2 from "../../public/assets/images/logo_clink.png";
 import logoutIcon from "../../public/assets/images/logout_icon.svg";
@@ -55,7 +56,8 @@ export type TImages =
     | "copyIconWhite"
     | "linkWhite"
     | "qrWhite"
-    | "ethLogo";
+    | "ethLogo"
+    | "loadAvatar";
 
 export type TNextImage = {
     src: string;
@@ -92,4 +94,5 @@ export const icons: Record<TImages, TNextImage> = {
     copyIconWhite,
     linkWhite,
     qrWhite,
+    loadAvatar,
 };
