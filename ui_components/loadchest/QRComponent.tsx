@@ -70,9 +70,10 @@ export interface IQRComponent {
     isShareQr?: boolean;
     widthPx: number;
     heightPx: number;
+    showCopy?: boolean;
 }
 export const QRComponent: FC<IQRComponent> = (props) => {
-    const { walletAddress, isShareQr, widthPx, heightPx } = props;
+    const { walletAddress, isShareQr, widthPx, heightPx, showCopy } = props;
     const [options] = useState<Options>({
         width: widthPx,
         height: heightPx,

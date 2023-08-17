@@ -1,10 +1,13 @@
 import { Dialog, Transition } from "@headlessui/react";
 import dynamic from "next/dynamic";
-import React, { FC, Fragment, useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import React, { FC, Fragment, useState } from "react";
 import ReactDOM from "react-dom";
 import { toast } from "react-toastify";
-import { useAccount } from "wagmi";
 
+import { trimAddress } from "../utils";
+import { icons } from "../utils/images";
 import { QRComponent } from "./loadchest/QRComponent";
 
 export default dynamic(() => Promise.resolve(QrModal), {
@@ -13,11 +16,11 @@ export default dynamic(() => Promise.resolve(QrModal), {
 export interface IQrModal {
     open: boolean;
     setOpen: (val: boolean) => void;
-    value: string;
+    address: string;
 }
 
 export const QrModal: FC<IQrModal> = (props) => {
-    const { open, setOpen, value } = props;
+    const { open, setOpen, address } = props;
 
     const [showOptions, setShowOptions] = useState(true);
 
@@ -25,6 +28,13 @@ export const QrModal: FC<IQrModal> = (props) => {
         // setShowDeposit(false);
         // setShowQr(false);
         setOpen(false);
+    };
+
+    const copyToClipBoard = (e: any) => {
+        e.preventDefault();
+        e.stopPropagation();
+        navigator.clipboard.writeText(address);
+        toast.success("Address copied to clipboard");
     };
 
     if (typeof window === "object") {
@@ -58,13 +68,26 @@ export const QrModal: FC<IQrModal> = (props) => {
                                     className={`bg-lightGray lg:min-w-[400px] rounded-[12px] w-[50%] lg:w-[400px]  py-5`}
                                 >
                                     {open && showOptions ? (
-                                        <div>
+                                        <div className="flex flex-col items-center justify-center">
                                             <div className="mb-5">
                                                 <QRComponent
-                                                    walletAddress={value}
+                                                    walletAddress={address}
                                                     isShareQr={true}
                                                     widthPx={240}
                                                     heightPx={240}
+                                                />
+                                            </div>
+                                            <div className="w-fit mt-[15px] border-dashed border border-secondary-300 dark:border-secondaryDark-300 rounded-[10px] flex justify-center items-center md:items-center p-2">
+                                                <Link
+                                                    href={`https://goerli.basescan.org/address/${address}`}
+                                                    target="_blank"
+                                                    className="text-sm text-white pb-2 underline"
+                                                >{`${trimAddress(address)}`}</Link>
+                                                <Image
+                                                    src={icons.copyIconWhite}
+                                                    alt="copy address"
+                                                    className="w-5 ml-2 mb-1 cursor-pointer opacity-60 hover:opacity-100"
+                                                    onClick={copyToClipBoard}
                                                 />
                                             </div>
                                         </div>

@@ -15,6 +15,7 @@ import { serializeError } from "eth-rpc-errors";
 import { ethers } from "ethers";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import * as React from "react";
 import { FC, useContext, useEffect, useMemo, useState } from "react";
 import Confetti from "react-confetti";
@@ -81,12 +82,14 @@ const ShareLink: FC<IShareLink> = (props) => {
     const [openShareModal, setOpenShareModal] = useState(false);
     const [showQr, setShowQr] = useState(false);
     const [isClaimSuccessful, setIsClaimSuccessful] = useState(false);
+    const [txHash, setTxHash] = useState("");
     const ethersProvider = new ethers.providers.JsonRpcProvider(BaseGoerli.info.rpc);
     const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
     const options: MetaTransactionOptions = {
         gasLimit: "100000",
         isSponsored: true,
     };
+    const router = useRouter();
 
     const [url, setUrl] = useState("");
     const shareData = {
@@ -123,41 +126,26 @@ const ShareLink: FC<IShareLink> = (props) => {
 
     useMemo(async () => {
         if (uuid && uuid != "/[id]") {
-            const walletCore = await initWasm();
-            const wallet = new Wallet(walletCore);
-            setWallet(wallet);
-            const chars = uuid.split("|");
-            if (chars.length < 1) {
-                return;
+            try {
+                const walletCore = await initWasm();
+                const wallet = new Wallet(walletCore);
+                setWallet(wallet);
+                const chars = uuid.split("|");
+                if (chars.length < 1) {
+                    return;
+                }
+                const smartAccHash = chars[1];
+                const smartAddress = decodeAddressHash(smartAccHash);
+                if (smartAddress) {
+                    setFromAddress(smartAddress);
+                } else {
+                    console.log("error", "invalid identifier");
+                }
+                handleSendToken();
+                await fetchBalance(smartAddress);
+            } catch (e) {
+                router.push("/");
             }
-            // const eoaHash = chars[0];
-            const smartAccHash = chars[1];
-            // const account = wallet.getAccountFromPayLink(eoaHash);
-            // const eoaAddress = account.address;
-            // const eoaKey = account.key;
-            // const ethersProvider = new ethers.providers.JsonRpcProvider(
-            //     BaseGoerli.info.rpc,
-            // );
-            // const destinationSigner = new ethers.Wallet(eoaKey, ethersProvider);
-            // const ethAdapter = new EthersAdapter({
-            //     ethers,
-            //     signerOrProvider: destinationSigner,
-            // });
-            // const safeFactory = await SafeFactory.create({
-            //     ethAdapter: ethAdapter,
-            // });
-            // const safeAccountConfig: SafeAccountConfig = {
-            //     owners: [eoaAddress],
-            //     threshold: 1,
-            // };
-            // const smartAddress = await safeFactory.predictSafeAddress(safeAccountConfig);
-            const smartAddress = decodeAddressHash(smartAccHash);
-            if (smartAddress) {
-                setFromAddress(smartAddress);
-            } else {
-                console.log("error", "invalid identifier");
-            }
-            await fetchBalance(smartAddress);
         }
     }, [uuid]);
 
@@ -171,7 +159,9 @@ const ShareLink: FC<IShareLink> = (props) => {
             setTokenValue(getTokenValueFormatted(bgNum, 6, false));
             setIsLoading(false);
             const formatBal = bgNum * res.data.ethereum.usd;
-            setLinkValueUsd(getCurrencyFormattedNumber(formatBal, 2, "USD", true));
+            setLinkValueUsd(
+                getCurrencyFormattedNumber(roundDownToTenth(formatBal), 2, "USD", true),
+            );
             const zeroBal =
                 getCurrencyFormattedNumber(formatBal, 2, "USD", true) === "$0";
             setHeadingText(
@@ -196,7 +186,6 @@ const ShareLink: FC<IShareLink> = (props) => {
     };
 
     const handleConnect = async () => {
-        setProcessing(true);
         const account = await getAccount();
         if (account.isConnected) {
             setToAddress(account.address);
@@ -209,7 +198,9 @@ const ShareLink: FC<IShareLink> = (props) => {
                     connector: injectConnector,
                 });
                 setToAddress(result.account);
-                toast.success(`Wallet Connected`);
+                toast.success(
+                    `Please wait, wallet connected and claim initiated for the chest`,
+                );
                 handleCloseClaimModal();
                 sendToken(result.account);
             } catch (e: any) {
@@ -221,39 +212,53 @@ const ShareLink: FC<IShareLink> = (props) => {
         }
     };
 
+    const [safeAccountAbstraction, setSafeAccountAbstraction] =
+        useState<AccountAbstraction>();
+    const [isRelayInitiated, setIsRelayInitiated] = useState(false);
+
+    const handleSendToken = async () => {
+        const walletCore = await initWasm();
+        const wallet = new Wallet(walletCore);
+        const chars = uuid.split("|");
+        if (chars.length < 1) {
+            return;
+        }
+        const eoaHash = chars[0];
+        const fromKey = await wallet.getAccountFromPayLink(eoaHash);
+
+        // from signer address
+        const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
+        const safeAccountAbs = new AccountAbstraction(fromSigner);
+        await safeAccountAbs.init({ relayPack });
+        setIsRelayInitiated(true);
+        setSafeAccountAbstraction(safeAccountAbs);
+    };
+
     const sendToken = async (toAdd: string) => {
         setProcessing(true);
         try {
-            const walletCore = await initWasm();
-            const wallet = new Wallet(walletCore);
-            const chars = uuid.split("|");
-            if (chars.length < 1) {
+            if (isRelayInitiated) {
+                const amountValue = hexToNumber(walletBalanceHex) / Math.pow(10, 18);
+
+                const safeTransactionData: MetaTransactionData = {
+                    to: toAdd,
+                    data: "0x",
+                    value: parseEther(amountValue.toString()).toString(),
+                    operation: OperationType.Call,
+                };
+
+                const gelatoTaskId = await safeAccountAbstraction?.relayTransaction(
+                    [safeTransactionData],
+                    options,
+                );
+                console.log(gelatoTaskId, "task id");
+                if (gelatoTaskId) {
+                    handleTransactionStatus(gelatoTaskId);
+                }
+            } else {
+                await handleSendToken();
+                sendToken(toAdd);
                 return;
-            }
-            const eoaHash = chars[0];
-            const fromKey = await wallet.getAccountFromPayLink(eoaHash);
-
-            // from signer address
-            const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
-            const safeAccountAbstraction = new AccountAbstraction(fromSigner);
-            await safeAccountAbstraction.init({ relayPack });
-
-            const amountValue = hexToNumber(walletBalanceHex) / Math.pow(10, 18);
-
-            const safeTransactionData: MetaTransactionData = {
-                to: toAdd,
-                data: "0x",
-                value: parseEther(amountValue.toString()).toString(),
-                operation: OperationType.Call,
-            };
-
-            const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
-                [safeTransactionData],
-                options,
-            );
-            console.log(gelatoTaskId, "task id");
-            if (gelatoTaskId) {
-                handleTransactionStatus(gelatoTaskId);
             }
         } catch (e: any) {
             setProcessing(false);
@@ -270,7 +275,11 @@ const ShareLink: FC<IShareLink> = (props) => {
                     if (res) {
                         const task = res.data.task;
                         if (task) {
-                            if (task.taskState === "ExecSuccess") {
+                            if (task.taskState === "WaitingForConfirmation") {
+                                setLinkValueUsd("$0");
+                                setTokenValue("0");
+                                setTxHash(task.transactionHash);
+                                setHeadingText("Chest have found their owner!");
                                 handleClaimSuccess();
                                 if (interval !== null) {
                                     clearInterval(interval);
@@ -300,8 +309,11 @@ const ShareLink: FC<IShareLink> = (props) => {
     const handleClaimSuccess = () => {
         setIsClaimSuccessful(true);
         setProcessing(false);
-        toast.success("Claimed Successfully");
-        fetchBalance(fromAddress);
+        toast.success(
+            <>
+                <p>Claimed Successfully!</p>
+            </>,
+        );
     };
 
     useEffect(() => {
@@ -321,6 +333,10 @@ const ShareLink: FC<IShareLink> = (props) => {
         }
     };
 
+    const roundDownToTenth = (number: number) => {
+        return Math.round(number * 10) / 10;
+    };
+
     return (
         <div className="w-full h-screen relative flex items-center overflow-hidden">
             <ToastContainer
@@ -336,7 +352,9 @@ const ShareLink: FC<IShareLink> = (props) => {
                 theme="dark"
             />
             <div className="w-full h-[70%] text-center p-4  flex flex-col gap-5 items-center">
-                <p className="text-white text-[20px] font-bold">{headingText}</p>
+                {!processing && (
+                    <p className="text-white text-[20px] font-bold">{headingText}</p>
+                )}
 
                 <div className="w-full md:w-[60%] max-w-[450px] h-[235px] shareLinkBg mb-16 cardShine">
                     <div className=" rounded-lg profileBackgroundImage flex flex-col justify-between h-full">
@@ -352,7 +370,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                                     <p className="text-sm text-white/50">{`~ ${tokenValue} ETH`}</p>
                                     <div className="flex justify-around w-[100px] mx-auto mt-1.5">
                                         <Link
-                                            href={`https://goerli.basescan.org/address/${fromAddress}`}
+                                            href={`https://goerli.basescan.org/address/${fromAddress}/#internaltx`}
                                             target="_blank"
                                         >
                                             <Image
@@ -393,47 +411,78 @@ const ShareLink: FC<IShareLink> = (props) => {
                         </div>
                     </div>
                 </div>
-                {isRedirected ? (
+                {linkValueUsd === "$0" ? (
+                    txHash ? (
+                        <div
+                            className={`py-4 text-white support_text_bold font-normal rounded-lg flex gap-1 items-center w-full justify-center border border-white max-w-[450px] mx-auto`}
+                        >
+                            <div>
+                                <p>🎉 Claim successful!</p>
+                                <p className="mt-3">
+                                    {" "}
+                                    The treasure is now yours to behold!
+                                    <a
+                                        target="_blank"
+                                        href={`https://goerli.basescan.org/tx/${txHash}`}
+                                        rel="noreferrer"
+                                        className="underline ml-2"
+                                    >
+                                        {"View ->"}
+                                    </a>
+                                </p>
+                            </div>
+                        </div>
+                    ) : null
+                ) : isRedirected ? (
                     <>
-                        <div className="lg:hidden block w-full">
-                            <PrimaryBtn
-                                className={`${
-                                    handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                }`}
-                                title="Share"
-                                onClick={() => {
-                                    handleShareURL();
-                                }}
-                                rightImage={showShareIcon ? icons.shareBtnIcon : ""}
-                                showShareIcon={showShareIcon}
-                                btnDisable={handleDisableBtn()}
-                                loading={isLoading}
-                            />
-                        </div>
-                        <div className="hidden lg:block w-full max-w-[400px]">
-                            <PrimaryBtn
-                                className={`${
-                                    handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                }`}
-                                title={shareText}
-                                onClick={() => {
-                                    setOpenShareModal(true);
-                                }}
-                                rightImage={showShareIcon ? icons.shareBtnIcon : ""}
-                                btnDisable={handleDisableBtn()}
-                                loading={isLoading}
-                            />
-                        </div>
+                        {!processing && (
+                            <div className="lg:hidden block w-full">
+                                <PrimaryBtn
+                                    className={`${
+                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
+                                    }`}
+                                    title="Share"
+                                    onClick={() => {
+                                        handleShareURL();
+                                    }}
+                                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
+                                    showShareIcon={showShareIcon}
+                                    btnDisable={handleDisableBtn()}
+                                    loading={isLoading}
+                                />
+                            </div>
+                        )}
+                        {!processing && (
+                            <div className="hidden lg:block w-full max-w-[400px]">
+                                <PrimaryBtn
+                                    className={`${
+                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
+                                    }`}
+                                    title={shareText}
+                                    onClick={() => {
+                                        setOpenShareModal(true);
+                                    }}
+                                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
+                                    btnDisable={handleDisableBtn()}
+                                    loading={isLoading}
+                                />
+                            </div>
+                        )}
                         <SecondaryBtn
                             className={`${
                                 handleDisableBtn() ? "opacity-60" : "opacity-100"
                             }`}
-                            title={processing ? "Processing..." : "Claim"}
+                            title={"Claim"}
                             onClick={() => handleClaimClick()}
                             rightImage={processing ? undefined : icons.downloadBtnIcon}
                             btnDisable={handleDisableBtn()}
-                            loading={isLoading}
+                            loading={isLoading || processing}
                         />
+                        {processing && (
+                            <p className="claim-processing">
+                                {"⏳ Hang tight! We're currently processing your claim."}
+                            </p>
+                        )}
                     </>
                 ) : (
                     <>
@@ -441,43 +490,57 @@ const ShareLink: FC<IShareLink> = (props) => {
                             className={`${
                                 handleDisableBtn() ? "opacity-60" : "opacity-100"
                             }`}
-                            title={processing ? "Processing..." : "Claim"}
+                            title={"Claim"}
                             onClick={() => handleClaimClick()}
                             rightImage={
                                 processing ? undefined : icons.downloadBtnIconBlack
                             }
                             btnDisable={handleDisableBtn()}
-                            loading={isLoading}
+                            loading={isLoading || processing}
                         />
-                        <div className="lg:hidden block w-full">
-                            <SecondaryBtn
-                                className={`${
-                                    handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                }`}
-                                title="Share"
-                                onClick={() => {
-                                    handleShareURL();
-                                }}
-                                rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
-                                showShareIcon={showShareIcon}
-                                btnDisable={handleDisableBtn()}
-                                loading={isLoading}
-                            />
-                        </div>
-                        <div className="hidden lg:block w-full max-w-[400px]">
-                            <SecondaryBtn
-                                className={`${
-                                    handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                }`}
-                                title={shareText}
-                                onClick={() => {
-                                    setOpenShareModal(true);
-                                }}
-                                rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
-                                btnDisable={handleDisableBtn()}
-                                loading={isLoading}
-                            />
-                        </div>
+
+                        {processing && (
+                            <p className="claim-processing">
+                                {"⏳ Hang tight! We're currently processing your claim."}
+                            </p>
+                        )}
+                        {!processing && (
+                            <div className="lg:hidden block w-full">
+                                <SecondaryBtn
+                                    className={`${
+                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
+                                    }`}
+                                    title="Share"
+                                    onClick={() => {
+                                        handleShareURL();
+                                    }}
+                                    rightImage={
+                                        showShareIcon ? icons.shareBtnIconWhite : ""
+                                    }
+                                    showShareIcon={showShareIcon}
+                                    btnDisable={handleDisableBtn()}
+                                    loading={isLoading}
+                                />
+                            </div>
+                        )}
+                        {!processing && (
+                            <div className="hidden lg:block w-full max-w-[400px]">
+                                <SecondaryBtn
+                                    className={`${
+                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
+                                    }`}
+                                    title={shareText}
+                                    onClick={() => {
+                                        setOpenShareModal(true);
+                                    }}
+                                    rightImage={
+                                        showShareIcon ? icons.shareBtnIconWhite : ""
+                                    }
+                                    btnDisable={handleDisableBtn()}
+                                    loading={isLoading}
+                                />
+                            </div>
+                        )}
                     </>
                 )}
             </div>
@@ -489,7 +552,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                 handlePublicAddressTransaction={handlePublicAddressTransaction}
             />
             <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
-            <QrModal open={showQr} setOpen={setShowQr} value={fromAddress} />
+            <QrModal open={showQr} setOpen={setShowQr} address={fromAddress} />
             {isClaimSuccessful && (
                 <Confetti
                     width={2400}

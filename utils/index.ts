@@ -73,9 +73,9 @@ export const trimAddress = (val: string) => {
     return firstFour + "..." + lastFour;
 };
 export const trimLink = (val: string) => {
-    const firstTen = val.substring(0, 6);
-    const lastTen = val.substring(val.length - 15, val.length);
-    return firstTen + "..." + lastTen;
+    const firstTwenty = val.substring(0, 20);
+    const lastEight = val.substring(val.length - 8, val.length);
+    return firstTwenty + "..." + lastEight;
 };
 
 export const getCurrencyFormattedNumber = (
@@ -183,7 +183,7 @@ export const getExponentialFixedNumber = (num: number) => {
 };
 
 export const copyToClipBoard = (val: string) => {
-    navigator.clipboard.writeText(`https://blocktheory.com/blog/${val}`);
+    navigator.clipboard.writeText(`${val}`);
 };
 
 export const encryptAndEncodeHexStrings = (hexString1: string, hexString2: string) => {

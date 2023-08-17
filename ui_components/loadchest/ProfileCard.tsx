@@ -78,7 +78,7 @@ export const ProfileCard: FC<IProfileCard> = (props) => {
                         />
                     </Link>
                 </div>
-                <Link href={"https://safe.global/"}>
+                <Link href={"https://safe.global/"} target="_blank">
                     <p className="inline text-[10px] text-white/50">Powered by: </p>
                     <Image
                         src={icons.safeLogo}
@@ -108,7 +108,7 @@ export const ProfileCard: FC<IProfileCard> = (props) => {
                 </div>
             ) : null} */}
 
-            <QrModal open={showQr} setOpen={setShowQr} value={address} />
+            <QrModal open={showQr} setOpen={setShowQr} address={address} />
         </>
     );
 };

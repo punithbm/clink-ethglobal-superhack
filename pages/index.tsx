@@ -71,7 +71,6 @@ export default function Home() {
 
     useEffect(() => {
         const item = localStorage.getItem("isGoogleLogin");
-        console.log(item, "item");
         console.log(
             localStorage.getItem("isGoogleLogin ") &&
                 localStorage.getItem("isGoogleLogin ") === "true",

@@ -85,6 +85,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     useEffect(() => {
         if (address) {
             fetchBalance();
+            handleInitWallet();
         }
     }, [address]);
 
@@ -119,6 +120,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         const valueWithoutDollarSign = val.replace(/[^\d.]/g, "");
         const tokenIputValue = Number(valueWithoutDollarSign) / Number(tokenPrice);
         setInputValue(getTokenValueFormatted(Number(tokenIputValue)));
+        setBtnDisable(false);
     };
 
     const handleInputChange = (val: string) => {
@@ -137,75 +139,123 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         }
     };
 
+    const [destinationAddress, setDestinationAddress] = useState("");
+    const [linkHash, setLinkHash] = useState("");
+    const [isRelayInitiated, setIsRelayInitiated] = useState(false);
+    const [safeAccountAbstraction, setSafeAccountAbstraction] =
+        useState<AccountAbstraction>();
+
+    const handleInitWallet = async () => {
+        const walletCore = await initWasm();
+        const wallet = new Wallet(walletCore);
+        const payData = await wallet.createPayLink();
+
+        setChestLoadingText("Setting up destination signer and address");
+
+        const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
+        const destinationEOAAddress = await destinationSigner.getAddress();
+        const ethAdapter = new EthersAdapter({
+            ethers,
+            signerOrProvider: destinationSigner,
+        });
+        setChestLoadingText("Creating safe contract for chest");
+        const safeFactory = await SafeFactory.create({
+            ethAdapter: ethAdapter,
+        });
+        const safeAccountConfig: SafeAccountConfig = {
+            owners: [destinationEOAAddress],
+            threshold: 1,
+        };
+        const destinationAdd = await safeFactory.predictSafeAddress(safeAccountConfig);
+        setDestinationAddress(destinationAdd);
+        const destinatinoHash = encodeAddress(destinationAdd);
+        const fullHash = payData.link + "|" + destinatinoHash;
+        setLinkHash(fullHash);
+        setChestLoadingText("Safe contract created");
+        const fromEthProvider = new ethers.providers.Web3Provider(provider);
+        const fromSigner = await fromEthProvider.getSigner();
+        const safeAccountAbstraction = new AccountAbstraction(fromSigner);
+        await safeAccountAbstraction.init({ relayPack });
+        setSafeAccountAbstraction(safeAccountAbstraction);
+        setIsRelayInitiated(true);
+    };
+
     const createWallet = async () => {
         const _inputValue = inputValue.replace(/[^\d.]/g, "");
         if (_inputValue) {
             setTransactionLoading(true);
             setChestLoadingText("Initializing wallet and creating link...");
             try {
-                const walletCore = await initWasm();
-                const wallet = new Wallet(walletCore);
-                const payData = await wallet.createPayLink();
+                // const walletCore = await initWasm();
+                // const wallet = new Wallet(walletCore);
+                // const payData = await wallet.createPayLink();
 
-                setChestLoadingText("Setting up destination signer and address");
+                // setChestLoadingText("Setting up destination signer and address");
 
-                const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
-                const destinationEOAAddress = await destinationSigner.getAddress();
-                const ethAdapter = new EthersAdapter({
-                    ethers,
-                    signerOrProvider: destinationSigner,
-                });
-                setChestLoadingText("Creating safe contract for chest");
-                const safeFactory = await SafeFactory.create({
-                    ethAdapter: ethAdapter,
-                });
-                const safeAccountConfig: SafeAccountConfig = {
-                    owners: [destinationEOAAddress],
-                    threshold: 1,
-                };
-                const destinationAddress = await safeFactory.predictSafeAddress(
-                    safeAccountConfig,
-                );
-                const destinatinoHash = encodeAddress(destinationAddress);
-                const fullHash = payData.link + "|" + destinatinoHash;
-                setChestLoadingText("Safe contract created");
+                // const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
+                // const destinationEOAAddress = await destinationSigner.getAddress();
+                // const ethAdapter = new EthersAdapter({
+                //     ethers,
+                //     signerOrProvider: destinationSigner,
+                // });
+                // setChestLoadingText("Creating safe contract for chest");
+                // const safeFactory = await SafeFactory.create({
+                //     ethAdapter: ethAdapter,
+                // });
+                // const safeAccountConfig: SafeAccountConfig = {
+                //     owners: [destinationEOAAddress],
+                //     threshold: 1,
+                // };
+                // const destinationAddress = await safeFactory.predictSafeAddress(
+                //     safeAccountConfig,
+                // );
+                // const destinatinoHash = encodeAddress(destinationAddress);
+                // const fullHash = payData.link + "|" + destinatinoHash;
+                // setChestLoadingText("Safe contract created");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    setChestLoadingText(
-                        "Initializing account abstraction for transaction relay",
-                    );
-                    const fromEthProvider = new ethers.providers.Web3Provider(provider);
-                    const fromSigner = await fromEthProvider.getSigner();
-                    const safeAccountAbstraction = new AccountAbstraction(fromSigner);
-                    await safeAccountAbstraction.init({ relayPack });
+                    // setChestLoadingText(
+                    //     "Initializing account abstraction for transaction relay",
+                    // );
+                    // const fromEthProvider = new ethers.providers.Web3Provider(provider);
+                    // const fromSigner = await fromEthProvider.getSigner();
+                    // const safeAccountAbstraction = new AccountAbstraction(fromSigner);
+                    // await safeAccountAbstraction.init({ relayPack });
 
-                    setChestLoadingText("Transaction process has begun...");
+                    if (isRelayInitiated) {
+                        setChestLoadingText("Transaction process has begun...");
 
-                    const safeTransactionData: MetaTransactionData = {
-                        to: destinationAddress,
-                        data: "0x",
-                        value: parseEther(inputValue).toString(),
-                        operation: OperationType.Call,
-                    };
+                        const safeTransactionData: MetaTransactionData = {
+                            to: destinationAddress,
+                            data: "0x",
+                            value: parseEther(inputValue).toString(),
+                            operation: OperationType.Call,
+                        };
 
-                    const options: MetaTransactionOptions = {
-                        gasLimit: "100000",
-                        isSponsored: true,
-                    };
+                        const options: MetaTransactionOptions = {
+                            gasLimit: "100000",
+                            isSponsored: true,
+                        };
 
-                    const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
-                        [safeTransactionData],
-                        options,
-                    );
-                    console.log("gelatoTaskId ", gelatoTaskId);
-                    console.log(
-                        `https://relay.gelato.digital/tasks/status/${gelatoTaskId}`,
-                    );
-                    if (gelatoTaskId) {
-                        setChestLoadingText(
-                            "Transaction on its way! Awaiting confirmation...",
+                        const gelatoTaskId =
+                            await safeAccountAbstraction?.relayTransaction(
+                                [safeTransactionData],
+                                options,
+                            );
+                        console.log("gelatoTaskId ", gelatoTaskId);
+                        console.log(
+                            `https://relay.gelato.digital/tasks/status/${gelatoTaskId}`,
                         );
-                        handleTransactionStatus(gelatoTaskId, fullHash);
+                        if (gelatoTaskId) {
+                            setChestLoadingText(
+                                "Transaction on its way! Awaiting confirmation...",
+                            );
+                            handleTransactionStatus(gelatoTaskId, linkHash);
+                        }
+                    } else {
+                        await handleInitWallet();
+                        createWallet();
+                        return;
                     }
                 } else {
                     try {
@@ -213,7 +263,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                             to: destinationAddress,
                             value: parseEther(inputValue),
                         });
-                        handleTransactionStatus(sendAmount.hash, fullHash);
+                        handleTransactionStatus(sendAmount.hash, linkHash);
                     } catch (e: any) {
                         setTransactionLoading(false);
                         const err = serializeError(e);
@@ -304,18 +354,6 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
 
     return (
         <div className="mx-auto relative max-w-[400px]">
-            <ToastContainer
-                toastStyle={{ backgroundColor: "#282B30" }}
-                className={`w-50`}
-                style={{ width: "600px" }}
-                position="bottom-center"
-                autoClose={6000}
-                hideProgressBar={true}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                theme="dark"
-            />
             {!transactionLoading ? (
                 <div>
                     <ProfileCard
