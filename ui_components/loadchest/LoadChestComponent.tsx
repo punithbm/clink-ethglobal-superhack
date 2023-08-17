@@ -74,7 +74,8 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const [balanceInUsd, setBalanceInUsd] = useState("");
     const [showActivity, setShowActivity] = useState(false);
     const [chestLoadingText, setChestLoadingText] = useState("");
-
+    const ethersProvider = new ethers.providers.JsonRpcProvider(BaseGoerli.info.rpc);
+    const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
     const handleToggle = () => {
         setToggle(!toggle);
     };
@@ -147,9 +148,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 const payData = await wallet.createPayLink();
 
                 setChestLoadingText("Setting up destination signer and address");
-                const ethersProvider = new ethers.providers.JsonRpcProvider(
-                    BaseGoerli.info.rpc,
-                );
+
                 const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
                 const destinationEOAAddress = await destinationSigner.getAddress();
                 const ethAdapter = new EthersAdapter({
@@ -167,15 +166,11 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                 const destinationAddress = await safeFactory.predictSafeAddress(
                     safeAccountConfig,
                 );
-                console.log(" destinationAddress ", destinationAddress);
                 const destinatinoHash = encodeAddress(destinationAddress);
                 const fullHash = payData.link + "|" + destinatinoHash;
                 setChestLoadingText("Safe contract created");
 
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    const relayPack = new GelatoRelayPack(
-                        process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY,
-                    );
                     setChestLoadingText(
                         "Initializing account abstraction for transaction relay",
                     );
@@ -183,7 +178,9 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                     const fromSigner = await fromEthProvider.getSigner();
                     const safeAccountAbstraction = new AccountAbstraction(fromSigner);
                     await safeAccountAbstraction.init({ relayPack });
+
                     setChestLoadingText("Transaction process has begun...");
+
                     const safeTransactionData: MetaTransactionData = {
                         to: destinationAddress,
                         data: "0x",
@@ -234,7 +231,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     };
 
     const handleTransactionStatus = (hash: string, link: string) => {
-        const intervalInMilliseconds = 2000;
+        const intervalInMilliseconds = 1000;
         const interval = setInterval(() => {
             if (loggedInVia === LOGGED_IN.GOOGLE) {
                 getRelayTransactionStatus(hash)

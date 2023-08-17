@@ -206,9 +206,7 @@ export const encryptAndEncodeHexStrings = (hexString1: string, hexString2: strin
 };
 
 export const encodeAddress = (address: string) => {
-    console.log("encodeAddress ", address);
     const buffData = hexToBuffer(address);
-    console.log("buffData ", buffData);
     const hash = bs58.encode(buffData);
     return hash;
 };

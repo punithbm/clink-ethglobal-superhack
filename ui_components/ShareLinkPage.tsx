@@ -81,6 +81,12 @@ const ShareLink: FC<IShareLink> = (props) => {
     const [openShareModal, setOpenShareModal] = useState(false);
     const [showQr, setShowQr] = useState(false);
     const [isClaimSuccessful, setIsClaimSuccessful] = useState(false);
+    const ethersProvider = new ethers.providers.JsonRpcProvider(BaseGoerli.info.rpc);
+    const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
+    const options: MetaTransactionOptions = {
+        gasLimit: "100000",
+        isSponsored: true,
+    };
 
     const [url, setUrl] = useState("");
     const shareData = {
@@ -124,7 +130,7 @@ const ShareLink: FC<IShareLink> = (props) => {
             if (chars.length < 1) {
                 return;
             }
-            const eoaHash = chars[0];
+            // const eoaHash = chars[0];
             const smartAccHash = chars[1];
             // const account = wallet.getAccountFromPayLink(eoaHash);
             // const eoaAddress = account.address;
@@ -220,26 +226,12 @@ const ShareLink: FC<IShareLink> = (props) => {
         try {
             const walletCore = await initWasm();
             const wallet = new Wallet(walletCore);
-            const gasLimitData = (await getEstimatedGas({
-                from: fromAddress,
-                to: toAdd,
-                value: walletBalanceHex,
-            })) as any;
-
             const chars = uuid.split("|");
             if (chars.length < 1) {
                 return;
             }
             const eoaHash = chars[0];
-            const smartAccHash = chars[1];
             const fromKey = await wallet.getAccountFromPayLink(eoaHash);
-
-            const ethersProvider = new ethers.providers.JsonRpcProvider(
-                BaseGoerli.info.rpc,
-            );
-            const relayPack = new GelatoRelayPack(
-                process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY,
-            );
 
             // from signer address
             const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
@@ -253,11 +245,6 @@ const ShareLink: FC<IShareLink> = (props) => {
                 data: "0x",
                 value: parseEther(amountValue.toString()).toString(),
                 operation: OperationType.Call,
-            };
-
-            const options: MetaTransactionOptions = {
-                gasLimit: "100000",
-                isSponsored: true,
             };
 
             const gelatoTaskId = await safeAccountAbstraction.relayTransaction(
@@ -276,7 +263,7 @@ const ShareLink: FC<IShareLink> = (props) => {
     };
 
     const handleTransactionStatus = (hash: string) => {
-        const intervalInMilliseconds = 2000;
+        const intervalInMilliseconds = 1000;
         const interval = setInterval(() => {
             getRelayTransactionStatus(hash)
                 .then((res: any) => {
@@ -391,14 +378,6 @@ const ShareLink: FC<IShareLink> = (props) => {
                                         />
                                     </div>
                                 </div>
-                                {/* <div className="pr-8 pt-2">
-                                    <QRComponent
-                                        walletAddress={url}
-                                        isShareQr={true}
-                                        widthPx={120}
-                                        heightPx={120}
-                                    />
-                                </div> */}
                             </div>
                         )}
                         <div className="self-end">
