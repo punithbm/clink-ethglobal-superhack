@@ -47,9 +47,9 @@ export default function claim() {
     return (
         <WagmiConfig config={config}>
             <MetaHead
-                title="Hey, Claim your Reward!!"
-                description="Crypto Rewards Just in Link | Clink Safe"
-                imageUrl="https://raw.githubusercontent.com/punithbm/eth-micropay-superhack/develop/public/assets/images/meta.png"
+                title="Clink | Unlock Your Crypto Rewards with Every Link"
+                description="Experience seamless crypto rewards and transactions through smart contract links with Clink."
+                imageUrl="https://designstring.s3.ap-south-1.amazonaws.com/personal/meta.png"
                 urlEndpoint=""
             />
             <ShareLink uuid={uuid} />
