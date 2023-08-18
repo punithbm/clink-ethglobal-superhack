@@ -15,7 +15,7 @@ import { ethers } from "ethers";
 import Lottie from "lottie-react";
 import Image from "next/image";
 import { useRouter } from "next/router";
-import { FC, useContext, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useRef, useState } from "react";
 import React from "react";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
@@ -76,6 +76,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
     const [chestLoadingText, setChestLoadingText] = useState("");
     const ethersProvider = new ethers.providers.JsonRpcProvider(BaseGoerli.info.rpc);
     const relayPack = new GelatoRelayPack(process.env.NEXT_PUBLIC_GELATO_RELAY_API_KEY);
+    const isRelayInitiated = useRef(false);
     const handleToggle = () => {
         setToggle(!toggle);
     };
@@ -141,9 +142,8 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
 
     const [destinationAddress, setDestinationAddress] = useState("");
     const [linkHash, setLinkHash] = useState("");
-    const [isRelayInitiated, setIsRelayInitiated] = useState(false);
-    const [safeAccountAbstraction, setSafeAccountAbstraction] =
-        useState<AccountAbstraction>();
+
+    const safeAccountAbstraction = useRef<AccountAbstraction>();
 
     const handleInitWallet = async () => {
         const walletCore = await initWasm();
@@ -174,10 +174,11 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         setChestLoadingText("Safe contract created");
         const fromEthProvider = new ethers.providers.Web3Provider(provider);
         const fromSigner = await fromEthProvider.getSigner();
-        const safeAccountAbstraction = new AccountAbstraction(fromSigner);
-        await safeAccountAbstraction.init({ relayPack });
-        setSafeAccountAbstraction(safeAccountAbstraction);
-        setIsRelayInitiated(true);
+        const safeAccountAbs = new AccountAbstraction(fromSigner);
+        await safeAccountAbs.init({ relayPack });
+        safeAccountAbstraction.current = safeAccountAbs;
+        console.log(safeAccountAbs, "safeAccAbs");
+        isRelayInitiated.current = true;
     };
 
     const createWallet = async () => {
@@ -185,44 +186,10 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         if (_inputValue) {
             setTransactionLoading(true);
             setChestLoadingText("Initializing wallet and creating link...");
+            console.log(isRelayInitiated.current, "isRelayInitiated");
             try {
-                // const walletCore = await initWasm();
-                // const wallet = new Wallet(walletCore);
-                // const payData = await wallet.createPayLink();
-
-                // setChestLoadingText("Setting up destination signer and address");
-
-                // const destinationSigner = new ethers.Wallet(payData.key, ethersProvider);
-                // const destinationEOAAddress = await destinationSigner.getAddress();
-                // const ethAdapter = new EthersAdapter({
-                //     ethers,
-                //     signerOrProvider: destinationSigner,
-                // });
-                // setChestLoadingText("Creating safe contract for chest");
-                // const safeFactory = await SafeFactory.create({
-                //     ethAdapter: ethAdapter,
-                // });
-                // const safeAccountConfig: SafeAccountConfig = {
-                //     owners: [destinationEOAAddress],
-                //     threshold: 1,
-                // };
-                // const destinationAddress = await safeFactory.predictSafeAddress(
-                //     safeAccountConfig,
-                // );
-                // const destinatinoHash = encodeAddress(destinationAddress);
-                // const fullHash = payData.link + "|" + destinatinoHash;
-                // setChestLoadingText("Safe contract created");
-
                 if (loggedInVia === LOGGED_IN.GOOGLE) {
-                    // setChestLoadingText(
-                    //     "Initializing account abstraction for transaction relay",
-                    // );
-                    // const fromEthProvider = new ethers.providers.Web3Provider(provider);
-                    // const fromSigner = await fromEthProvider.getSigner();
-                    // const safeAccountAbstraction = new AccountAbstraction(fromSigner);
-                    // await safeAccountAbstraction.init({ relayPack });
-
-                    if (isRelayInitiated) {
+                    if (isRelayInitiated.current) {
                         setChestLoadingText("Transaction process has begun...");
 
                         const safeTransactionData: MetaTransactionData = {
@@ -238,7 +205,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
                         };
 
                         const gelatoTaskId =
-                            await safeAccountAbstraction?.relayTransaction(
+                            await safeAccountAbstraction?.current?.relayTransaction(
                                 [safeTransactionData],
                                 options,
                             );
