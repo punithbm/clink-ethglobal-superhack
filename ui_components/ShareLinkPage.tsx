@@ -17,7 +17,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import * as React from "react";
-import { FC, useContext, useEffect, useMemo, useState } from "react";
+import { FC, useContext, useEffect, useMemo, useRef, useState } from "react";
 import Confetti from "react-confetti";
 import { toast } from "react-toastify";
 import { ToastContainer } from "react-toastify";
@@ -212,9 +212,10 @@ const ShareLink: FC<IShareLink> = (props) => {
         }
     };
 
-    const [safeAccountAbstraction, setSafeAccountAbstraction] =
-        useState<AccountAbstraction>();
-    const [isRelayInitiated, setIsRelayInitiated] = useState(false);
+    // const [safeAccountAbstraction, setSafeAccountAbstraction] =
+    //     useState<AccountAbstraction>();
+    const isRelayInitiated = useRef(false);
+    const safeAccountAbstraction = useRef<AccountAbstraction>();
 
     const handleSendToken = async () => {
         const walletCore = await initWasm();
@@ -230,14 +231,14 @@ const ShareLink: FC<IShareLink> = (props) => {
         const fromSigner = new ethers.Wallet(fromKey.key, ethersProvider);
         const safeAccountAbs = new AccountAbstraction(fromSigner);
         await safeAccountAbs.init({ relayPack });
-        setIsRelayInitiated(true);
-        setSafeAccountAbstraction(safeAccountAbs);
+        safeAccountAbstraction.current = safeAccountAbs;
+        isRelayInitiated.current = true;
     };
 
     const sendToken = async (toAdd: string) => {
         setProcessing(true);
         try {
-            if (isRelayInitiated) {
+            if (isRelayInitiated.current) {
                 const amountValue = hexToNumber(walletBalanceHex) / Math.pow(10, 18);
 
                 const safeTransactionData: MetaTransactionData = {
@@ -247,10 +248,11 @@ const ShareLink: FC<IShareLink> = (props) => {
                     operation: OperationType.Call,
                 };
 
-                const gelatoTaskId = await safeAccountAbstraction?.relayTransaction(
-                    [safeTransactionData],
-                    options,
-                );
+                const gelatoTaskId =
+                    await safeAccountAbstraction?.current?.relayTransaction(
+                        [safeTransactionData],
+                        options,
+                    );
                 console.log(gelatoTaskId, "task id");
                 if (gelatoTaskId) {
                     handleTransactionStatus(gelatoTaskId);
@@ -275,7 +277,10 @@ const ShareLink: FC<IShareLink> = (props) => {
                     if (res) {
                         const task = res.data.task;
                         if (task) {
-                            if (task.taskState === "WaitingForConfirmation") {
+                            if (
+                                task.taskState === "WaitingForConfirmation" ||
+                                task.taskState === "ExecSuccess"
+                            ) {
                                 setLinkValueUsd("$0");
                                 setTokenValue("0");
                                 setTxHash(task.transactionHash);
@@ -334,7 +339,12 @@ const ShareLink: FC<IShareLink> = (props) => {
     };
 
     const roundDownToTenth = (number: number) => {
+        const decimalPart = number - Math.floor(number);
+        if (decimalPart < 0.7) {
         return Math.round(number * 10) / 10;
+        } else {
+        return Math.ceil(number);
+        }
     };
 
     return (
