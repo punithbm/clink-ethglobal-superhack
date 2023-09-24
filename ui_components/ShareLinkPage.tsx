@@ -172,6 +172,16 @@ const ShareLink: FC<IShareLink> = (props) => {
         });
     };
 
+    const handleBidaliClaim = () => {
+      // @ts-ignore
+      if (window && window.bidaliSdk) {
+        // @ts-ignore
+        window.bidaliSdk.Commerce.render({
+          apiKey: "YOUR API KEY",
+        });
+      }
+    }
+
     const handleClaimClick = () => {
         setOpenClaimModal(true);
     };
@@ -361,6 +371,7 @@ const ShareLink: FC<IShareLink> = (props) => {
                 rtl={false}
                 theme="dark"
             />
+            <script type="text/javascript" src="https://commerce.staging.bidali.com/commerce.min.js"></script>
             <div className="w-full h-[70%] text-center p-4  flex flex-col gap-5 items-center">
                 {!processing && (
                     <p className="text-white text-[20px] font-bold">{headingText}</p>
@@ -488,6 +499,16 @@ const ShareLink: FC<IShareLink> = (props) => {
                             btnDisable={handleDisableBtn()}
                             loading={isLoading || processing}
                         />
+                        <SecondaryBtn
+                            className={`${
+                                handleDisableBtn() ? "opacity-60" : "opacity-100"
+                            }`}
+                            title={"Claim"}
+                            onClick={() => handleClaimClick()}
+                            rightImage={processing ? undefined : icons.downloadBtnIcon}
+                            btnDisable={handleDisableBtn()}
+                            loading={isLoading || processing}
+                        />
                         {processing && (
                             <p className="claim-processing">
                                 {"⏳ Hang tight! We're currently processing your claim."}
@@ -551,6 +572,17 @@ const ShareLink: FC<IShareLink> = (props) => {
                                 />
                             </div>
                         )}
+
+                        <SecondaryBtn
+                            className={`${
+                                handleDisableBtn() ? "opacity-60" : "opacity-100"
+                            }`}
+                            title={"Gift Card"}
+                            onClick={() => handleBidaliClaim()}
+                            rightImage={processing ? undefined : icons.downloadBtnIcon}
+                            btnDisable={handleDisableBtn()}
+                            loading={isLoading || processing}
+                        />
                     </>
                 )}
             </div>
