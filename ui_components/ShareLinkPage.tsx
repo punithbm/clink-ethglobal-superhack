@@ -178,6 +178,7 @@ const ShareLink: FC<IShareLink> = (props) => {
         // @ts-ignore
         window.bidaliSdk.Commerce.render({
           apiKey: "YOUR API KEY",
+          email: "punith@designstring.com"
         });
       }
     }
@@ -358,254 +359,141 @@ const ShareLink: FC<IShareLink> = (props) => {
     };
 
     return (
-        <div className="w-full h-screen relative flex items-center overflow-hidden">
-            <ToastContainer
-                toastStyle={{ backgroundColor: "#282B30" }}
-                className={`w-50`}
-                style={{ width: "600px" }}
-                position="bottom-center"
-                autoClose={6000}
-                hideProgressBar={true}
-                newestOnTop={false}
-                closeOnClick
-                rtl={false}
-                theme="dark"
-            />
-            <script type="text/javascript" src="https://commerce.staging.bidali.com/commerce.min.js"></script>
-            <div className="w-full h-[70%] text-center p-4  flex flex-col gap-5 items-center">
-                {!processing && (
-                    <p className="text-white text-[20px] font-bold">{headingText}</p>
-                )}
+      <div className="w-full h-screen relative flex items-center overflow-hidden">
+        <ToastContainer toastStyle={{ backgroundColor: "#282B30" }} className={`w-50`} style={{ width: "600px" }} position="bottom-center" autoClose={6000} hideProgressBar={true} newestOnTop={false} closeOnClick rtl={false} theme="dark" />
+        <script type="text/javascript" src="https://commerce.staging.bidali.com/commerce.min.js"></script>
+        <div className="w-full h-[70%] text-center p-4  flex flex-col gap-5 items-center">
+          {!processing && <p className="text-white text-[20px] font-bold">{headingText}</p>}
 
-                <div className="w-full md:w-[60%] max-w-[450px] h-[235px] shareLinkBg mb-16 cardShine">
-                    <div className=" rounded-lg profileBackgroundImage flex flex-col justify-between h-full">
-                        {isLoading ? (
-                            <div className="w-full h-full mt-5 ml-5">
-                                <div className="w-[15%] h-[20%] bg-white/10 animate-pulse rounded-lg mb-2"></div>
-                                <div className="w-[10%] h-[12%] bg-white/10 animate-pulse rounded-lg "></div>
-                            </div>
-                        ) : (
-                            <div className="flex justify-between">
-                                <div className="flex gap-1 flex-col text-start ml-3">
-                                    <p className="text-[40px] text-[#F4EC97] font bold">{`${linkValueUsd}`}</p>
-                                    <p className="text-sm text-white/50">{`~ ${tokenValue} ETH`}</p>
-                                    <div className="flex justify-around w-[100px] mx-auto mt-1.5">
-                                        <Link
-                                            href={`https://goerli.basescan.org/address/${fromAddress}/#internaltx`}
-                                            target="_blank"
-                                        >
-                                            <Image
-                                                src={icons.linkWhite}
-                                                alt="external link"
-                                                className="w-5 cursor-pointer opacity-60 hover:opacity-100"
-                                            />
-                                        </Link>
-
-                                        <Image
-                                            src={icons.qrWhite}
-                                            alt="show qr code"
-                                            className="w-5 cursor-pointer opacity-60 hover:opacity-100"
-                                            onClick={() => {
-                                                setShowQr(!showQr);
-                                            }}
-                                        />
-                                        <Image
-                                            src={icons.copyIconWhite}
-                                            alt="copy address"
-                                            className="w-5 cursor-pointer opacity-60 hover:opacity-100"
-                                            onClick={copyAddress}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        <div className="self-end">
-                            {isClaimSuccessful || linkValueUsd === "$0" ? (
-                                <Image
-                                    className="mt-[-29px]"
-                                    src={icons.tchestopen}
-                                    alt="Chest Open"
-                                />
-                            ) : (
-                                <Image className="" src={icons.tchest} alt="Chest" />
-                            )}
-                        </div>
-                    </div>
+          <div className="w-full md:w-[60%] max-w-[450px] h-[235px] shareLinkBg mb-16 cardShine">
+            <div className=" rounded-lg profileBackgroundImage flex flex-col justify-between h-full">
+              {isLoading ? (
+                <div className="w-full h-full mt-5 ml-5">
+                  <div className="w-[15%] h-[20%] bg-white/10 animate-pulse rounded-lg mb-2"></div>
+                  <div className="w-[10%] h-[12%] bg-white/10 animate-pulse rounded-lg "></div>
                 </div>
-                {linkValueUsd === "$0" ? (
-                    txHash ? (
-                        <div
-                            className={`py-4 text-white support_text_bold font-normal rounded-lg flex gap-1 items-center w-full justify-center border border-white max-w-[450px] mx-auto`}
-                        >
-                            <div>
-                                <p>🎉 Claim successful!</p>
-                                <p className="mt-3">
-                                    {" "}
-                                    The treasure is now yours to behold!
-                                    <a
-                                        target="_blank"
-                                        href={`https://goerli.basescan.org/tx/${txHash}`}
-                                        rel="noreferrer"
-                                        className="underline ml-2"
-                                    >
-                                        {"View ->"}
-                                    </a>
-                                </p>
-                            </div>
-                        </div>
-                    ) : null
-                ) : isRedirected ? (
-                    <>
-                        {!processing && (
-                            <div className="lg:hidden block w-full">
-                                <PrimaryBtn
-                                    className={`${
-                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                    }`}
-                                    title="Share"
-                                    onClick={() => {
-                                        handleShareURL();
-                                    }}
-                                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
-                                    showShareIcon={showShareIcon}
-                                    btnDisable={handleDisableBtn()}
-                                    loading={isLoading}
-                                />
-                            </div>
-                        )}
-                        {!processing && (
-                            <div className="hidden lg:block w-full max-w-[400px]">
-                                <PrimaryBtn
-                                    className={`${
-                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                    }`}
-                                    title={shareText}
-                                    onClick={() => {
-                                        setOpenShareModal(true);
-                                    }}
-                                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
-                                    btnDisable={handleDisableBtn()}
-                                    loading={isLoading}
-                                />
-                            </div>
-                        )}
-                        <SecondaryBtn
-                            className={`${
-                                handleDisableBtn() ? "opacity-60" : "opacity-100"
-                            }`}
-                            title={"Claim"}
-                            onClick={() => handleClaimClick()}
-                            rightImage={processing ? undefined : icons.downloadBtnIcon}
-                            btnDisable={handleDisableBtn()}
-                            loading={isLoading || processing}
-                        />
-                        <SecondaryBtn
-                            className={`${
-                                handleDisableBtn() ? "opacity-60" : "opacity-100"
-                            }`}
-                            title={"Claim"}
-                            onClick={() => handleClaimClick()}
-                            rightImage={processing ? undefined : icons.downloadBtnIcon}
-                            btnDisable={handleDisableBtn()}
-                            loading={isLoading || processing}
-                        />
-                        {processing && (
-                            <p className="claim-processing">
-                                {"⏳ Hang tight! We're currently processing your claim."}
-                            </p>
-                        )}
-                    </>
-                ) : (
-                    <>
-                        <PrimaryBtn
-                            className={`${
-                                handleDisableBtn() ? "opacity-60" : "opacity-100"
-                            }`}
-                            title={"Claim"}
-                            onClick={() => handleClaimClick()}
-                            rightImage={
-                                processing ? undefined : icons.downloadBtnIconBlack
-                            }
-                            btnDisable={handleDisableBtn()}
-                            loading={isLoading || processing}
-                        />
+              ) : (
+                <div className="flex justify-between">
+                  <div className="flex gap-1 flex-col text-start ml-3">
+                    <p className="text-[40px] text-[#F4EC97] font bold">{`${linkValueUsd}`}</p>
+                    <p className="text-sm text-white/50">{`~ ${tokenValue} ETH`}</p>
+                    <div className="flex justify-around w-[100px] mx-auto mt-1.5">
+                      <Link href={`https://goerli.basescan.org/address/${fromAddress}/#internaltx`} target="_blank">
+                        <Image src={icons.linkWhite} alt="external link" className="w-5 cursor-pointer opacity-60 hover:opacity-100" />
+                      </Link>
 
-                        {processing && (
-                            <p className="claim-processing">
-                                {"⏳ Hang tight! We're currently processing your claim."}
-                            </p>
-                        )}
-                        {!processing && (
-                            <div className="lg:hidden block w-full">
-                                <SecondaryBtn
-                                    className={`${
-                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                    }`}
-                                    title="Share"
-                                    onClick={() => {
-                                        handleShareURL();
-                                    }}
-                                    rightImage={
-                                        showShareIcon ? icons.shareBtnIconWhite : ""
-                                    }
-                                    showShareIcon={showShareIcon}
-                                    btnDisable={handleDisableBtn()}
-                                    loading={isLoading}
-                                />
-                            </div>
-                        )}
-                        {!processing && (
-                            <div className="hidden lg:block w-full max-w-[400px]">
-                                <SecondaryBtn
-                                    className={`${
-                                        handleDisableBtn() ? "opacity-60" : "opacity-100"
-                                    }`}
-                                    title={shareText}
-                                    onClick={() => {
-                                        setOpenShareModal(true);
-                                    }}
-                                    rightImage={
-                                        showShareIcon ? icons.shareBtnIconWhite : ""
-                                    }
-                                    btnDisable={handleDisableBtn()}
-                                    loading={isLoading}
-                                />
-                            </div>
-                        )}
-
-                        <SecondaryBtn
-                            className={`${
-                                handleDisableBtn() ? "opacity-60" : "opacity-100"
-                            }`}
-                            title={"Gift Card"}
-                            onClick={() => handleBidaliClaim()}
-                            rightImage={processing ? undefined : icons.downloadBtnIcon}
-                            btnDisable={handleDisableBtn()}
-                            loading={isLoading || processing}
-                        />
-                    </>
-                )}
+                      <Image
+                        src={icons.qrWhite}
+                        alt="show qr code"
+                        className="w-5 cursor-pointer opacity-60 hover:opacity-100"
+                        onClick={() => {
+                          setShowQr(!showQr);
+                        }}
+                      />
+                      <Image src={icons.copyIconWhite} alt="copy address" className="w-5 cursor-pointer opacity-60 hover:opacity-100" onClick={copyAddress} />
+                    </div>
+                  </div>
+                </div>
+              )}
+              <div className="self-end">{isClaimSuccessful || linkValueUsd === "$0" ? <Image className="mt-[-29px]" src={icons.tchestopen} alt="Chest Open" /> : <Image className="" src={icons.tchest} alt="Chest" />}</div>
             </div>
-            <ClaimBtnModal
-                open={openClaimModal}
-                setOpen={setOpenClaimModal}
-                uuid={uuid}
-                handleConnect={handleConnect}
-                handlePublicAddressTransaction={handlePublicAddressTransaction}
-            />
-            <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
-            <QrModal open={showQr} setOpen={setShowQr} address={fromAddress} />
-            {isClaimSuccessful && (
-                <Confetti
-                    width={2400}
-                    height={1200}
-                    recycle={false}
-                    numberOfPieces={2000}
-                />
-            )}
+          </div>
+          {linkValueUsd === "$0" ? (
+            txHash ? (
+              <div className={`py-4 text-white support_text_bold font-normal rounded-lg flex gap-1 items-center w-full justify-center border border-white max-w-[450px] mx-auto`}>
+                <div>
+                  <p>🎉 Claim successful!</p>
+                  <p className="mt-3">
+                    {" "}
+                    The treasure is now yours to behold!
+                    <a target="_blank" href={`https://goerli.basescan.org/tx/${txHash}`} rel="noreferrer" className="underline ml-2">
+                      {"View ->"}
+                    </a>
+                  </p>
+                </div>
+              </div>
+            ) : null
+          ) : isRedirected ? (
+            <>
+              {!processing && (
+                <div className="lg:hidden block w-full">
+                  <PrimaryBtn
+                    className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`}
+                    title="Share"
+                    onClick={() => {
+                      handleShareURL();
+                    }}
+                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
+                    showShareIcon={showShareIcon}
+                    btnDisable={handleDisableBtn()}
+                    loading={isLoading}
+                  />
+                </div>
+              )}
+              {!processing && (
+                <div className="hidden lg:block w-full max-w-[400px]">
+                  <PrimaryBtn
+                    className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`}
+                    title={shareText}
+                    onClick={() => {
+                      setOpenShareModal(true);
+                    }}
+                    rightImage={showShareIcon ? icons.shareBtnIcon : ""}
+                    btnDisable={handleDisableBtn()}
+                    loading={isLoading}
+                  />
+                </div>
+              )}
+              <SecondaryBtn className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`} title={"Claim"} onClick={() => handleClaimClick()} rightImage={processing ? undefined : icons.downloadBtnIcon} btnDisable={handleDisableBtn()} loading={isLoading || processing} />
+              <SecondaryBtn className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`} title={"Redeem Gift Card"} onClick={() => handleBidaliClaim()} rightImage={processing ? undefined : icons.giftRedeem} btnDisable={handleDisableBtn()} loading={isLoading || processing} />
+              {processing && <p className="claim-processing">{"⏳ Hang tight! We're currently processing your claim."}</p>}
+            </>
+          ) : (
+            <>
+              <PrimaryBtn className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`} title={"Claim"} onClick={() => handleClaimClick()} rightImage={processing ? undefined : icons.downloadBtnIconBlack} btnDisable={handleDisableBtn()} loading={isLoading || processing} />
 
-            <Footer />
+              {processing && <p className="claim-processing">{"⏳ Hang tight! We're currently processing your claim."}</p>}
+              {!processing && (
+                <div className="lg:hidden block w-full">
+                  <SecondaryBtn
+                    className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`}
+                    title="Share"
+                    onClick={() => {
+                      handleShareURL();
+                    }}
+                    rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
+                    showShareIcon={showShareIcon}
+                    btnDisable={handleDisableBtn()}
+                    loading={isLoading}
+                  />
+                </div>
+              )}
+              {!processing && (
+                <div className="hidden lg:block w-full max-w-[400px]">
+                  <SecondaryBtn
+                    className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`}
+                    title={shareText}
+                    onClick={() => {
+                      setOpenShareModal(true);
+                    }}
+                    rightImage={showShareIcon ? icons.shareBtnIconWhite : ""}
+                    btnDisable={handleDisableBtn()}
+                    loading={isLoading}
+                  />
+                </div>
+              )}
+
+              <SecondaryBtn className={`${handleDisableBtn() ? "opacity-60" : "opacity-100"}`} title={"Redeem Gift Card"} onClick={() => handleBidaliClaim()} rightImage={processing ? undefined : icons.giftRedeem} btnDisable={handleDisableBtn()} loading={isLoading || processing} />
+            </>
+          )}
         </div>
+        <ClaimBtnModal open={openClaimModal} setOpen={setOpenClaimModal} uuid={uuid} handleConnect={handleConnect} handlePublicAddressTransaction={handlePublicAddressTransaction} />
+        <ShareBtnModal open={openShareModal} setOpen={setOpenShareModal} />
+        <QrModal open={showQr} setOpen={setShowQr} address={fromAddress} />
+        {isClaimSuccessful && <Confetti width={2400} height={1200} recycle={false} numberOfPieces={2000} />}
+
+        <Footer />
+      </div>
     );
 };
 export default ShareLink;

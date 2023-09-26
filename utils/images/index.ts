@@ -5,6 +5,7 @@ import chevronRight from "../../public/assets/images/chevron_right.svg";
 import copyBlack from "../../public/assets/images/copy_black.svg";
 import copyIconWhite from "../../public/assets/images/copy_icon_white.svg";
 import downloadBtnIcon from "../../public/assets/images/download_btn_icon.svg";
+import giftRedeem from "../../public/assets/images/gift_redeem.svg";
 import downloadBtnIconBlack from "../../public/assets/images/download_btn_icon_black.svg";
 import ethLogo from "../../public/assets/images/eth_logo.svg";
 import googleIcon from "../../public/assets/images/google_icon.svg";
@@ -57,6 +58,7 @@ export type TImages =
     | "linkWhite"
     | "qrWhite"
     | "ethLogo"
+    | "giftRedeem"
     | "loadAvatar";
 
 export type TNextImage = {
@@ -94,5 +96,6 @@ export const icons: Record<TImages, TNextImage> = {
     copyIconWhite,
     linkWhite,
     qrWhite,
+    giftRedeem,
     loadAvatar,
 };
