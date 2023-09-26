@@ -169,7 +169,7 @@ export const LoadChestComponent: FC<ILoadChestComponent> = (props) => {
         const destinationAdd = await safeFactory.predictSafeAddress(safeAccountConfig);
         setDestinationAddress(destinationAdd);
         const destinatinoHash = encodeAddress(destinationAdd);
-        const fullHash = payData.link + "|" + destinatinoHash;
+        const fullHash = payData.link + "~" + destinatinoHash;
         setLinkHash(fullHash);
         setChestLoadingText("Safe contract created");
         const fromEthProvider = new ethers.providers.Web3Provider(provider);
